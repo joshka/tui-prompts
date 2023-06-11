@@ -16,3 +16,7 @@ tui-prompts = "0.1.0"
 ## Status
 
 WORK IN PROGRESS
+
+## Examples
+
+  ![Made with VHS](https://vhs.charm.sh/vhs-5ohzheZoy4Bhkt2HNOnqF2.gif)
