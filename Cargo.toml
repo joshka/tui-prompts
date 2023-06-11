@@ -1,0 +1,16 @@
+[package]
+name = "tui-prompts"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+crossterm = "0.26"
+derive_builder = "0.12"
+tui = { package = "ratatui", version = "0.21" }
+tui-textarea = { version = "0.2", default-features = false, features = ["ratatui-crossterm"] }
+tui-input = "0.7"
+
+[patch.crates-io]
+tui-textarea = { git = "https://github.com/rhysd/tui-textarea.git" }
