@@ -15,8 +15,14 @@ tui-prompts = "0.1.0"
 
 ## Status
 
-WORK IN PROGRESS
+Pre-Alpha
 
 ## Examples
 
-  ![Made with VHS](https://vhs.charm.sh/vhs-5ohzheZoy4Bhkt2HNOnqF2.gif)
+### Text ([text.rs](./examples/text.rs))
+
+![Text Example](https://vhs.charm.sh/vhs-71AGPkd5DExOhgelWulK7e.gif)
+
+### Password ([password.rs](./examples/password.rs))
+
+![Password Example](https://vhs.charm.sh/vhs-5c9ruqSJirlQtRutEaIv9z.gif)

@@ -1,16 +1,26 @@
 [package]
 name = "tui-prompts"
 version = "0.1.0"
+description = "A library for building interactive prompts for ratatui."
+repository = "https://github.com/joshka/tui-prompts"
+authors = ["Joshka"]
+license = "MIT OR Apache-2.0"
+categories = ["terminal", "terminal-ui", "tui", "prompt", "ratatui"]
+keywords = ["tui", "prompt", "ratatui"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 crossterm = "0.26"
-derive_builder = "0.12"
-tui = { package = "ratatui", version = "0.21" }
-tui-textarea = { version = "0.2", default-features = false, features = ["ratatui-crossterm"] }
-tui-input = "0.7"
+itertools = "0.11"
+ratatui = "0.21"
+
+[dev-dependencies]
+color-eyre = "0.6.2"
+indoc = "2.0.1"
 
 [patch.crates-io]
-tui-textarea = { git = "https://github.com/rhysd/tui-textarea.git" }
+# take advantage of the latest unreleased ratatui features
+ratatui = { git = "https://github.com/joshka/ratatui.git", branch = "feat-prelude" }
+# ratatui = { path = "../ratatui" }
