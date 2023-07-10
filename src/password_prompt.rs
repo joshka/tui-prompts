@@ -58,7 +58,7 @@ impl<'a> StatefulWidget for PasswordPrompt<'a> {
             state.status.symbol(),
             " ".into(),
             self.message.bold(),
-            " › ".cyan().dimmed(),
+            " › ".cyan().dim(),
             masked_password.into(),
         ]);
         // TODO: constrain the cursor to the rect

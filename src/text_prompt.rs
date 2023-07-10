@@ -50,6 +50,7 @@ impl Prompt for TextPrompt<'_> {
 impl<'a> StatefulWidget for TextPrompt<'a> {
     type State = TextState<'a>;
 
+    // TODO: this is a mess, clean it up.
     fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
         let mut area = area;
         if let Some(block) = self.block {
@@ -67,7 +68,7 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
             state.status.symbol(),
             " ".into(),
             self.message.bold(),
-            " › ".cyan().dimmed(),
+            " › ".cyan().dim(),
         ]);
 
         let static_part_width = first_line.width();

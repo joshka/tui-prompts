@@ -22,5 +22,5 @@ indoc = "2.0.1"
 
 [patch.crates-io]
 # take advantage of the latest unreleased ratatui features
-ratatui = { git = "https://github.com/joshka/ratatui.git", branch = "feat-prelude" }
+ratatui = { git = "https://github.com/joshka/ratatui.git", branch = "feat-stylize-all-the-things" }
 # ratatui = { path = "../ratatui" }

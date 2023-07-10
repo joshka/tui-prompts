@@ -263,6 +263,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "paste"
+version = "1.0.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b4b27ab7be369122c218afc2079489cdcb4b517c0a3fc386ff11e1fedfcc2b35"
+
+[[package]]
 name = "pin-project-lite"
 version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -271,12 +277,13 @@ checksum = "4c40d25201921e5ff0c862a505c6557ea88568a4e3ace775ab55e93f2f4f9d57"
 [[package]]
 name = "ratatui"
 version = "0.21.0"
-source = "git+https://github.com/joshka/ratatui.git?branch=feat-prelude#c49c665327660600c4b13a9b2b18f4bf72923e5d"
+source = "git+https://github.com/joshka/ratatui.git?branch=feat-stylize-all-the-things#e8a95d3e5f16e922dc147ed3896c7f1814ca959a"
 dependencies = [
  "bitflags 2.3.3",
  "cassowary",
  "crossterm",
  "indoc",
+ "paste",
  "unicode-segmentation",
  "unicode-width",
 ]
