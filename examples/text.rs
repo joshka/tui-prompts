@@ -1,5 +1,6 @@
 mod tui;
 
+use clap::Parser;
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyEvent};
 use ratatui::prelude::*;
@@ -7,21 +8,30 @@ use ratatui::prelude::*;
 use tui::Tui;
 use tui_prompts::prelude::*;
 
+#[derive(Parser)]
+struct Cli {
+    #[arg(short, long)]
+    debug: bool,
+}
+
 fn main() -> Result<()> {
-    let mut app = App::new();
+    let cli = Cli::parse();
+    let mut app = App::new(cli);
     app.run()?;
     println!(); // to prevent the cursor from being on the same line as the prompt.
     Ok(())
 }
 
 struct App<'a> {
+    debug: bool,
     username: TextState<'a>,
     password: TextState<'a>,
 }
 
 impl<'a> App<'a> {
-    const fn new() -> Self {
+    const fn new(cli: Cli) -> Self {
         Self {
+            debug: cli.debug,
             username: TextState::new().with_focus(Focus::Focused),
             password: TextState::new(),
         }
@@ -46,6 +56,13 @@ impl<'a> App<'a> {
     }
 
     fn draw_ui<B: Backend>(&mut self, frame: &mut Frame<B>) {
+        self.draw_app(frame);
+        if self.debug {
+            self.draw_debug(frame);
+        }
+    }
+
+    fn draw_app<B: Backend>(&mut self, frame: &mut Frame<B>) {
         let area = Rect::new(0, 0, frame.size().width, 1);
         TextPrompt::from("Username").draw(frame, area, &mut self.username);
 
@@ -53,6 +70,17 @@ impl<'a> App<'a> {
         TextPrompt::from("Password")
             .with_render_style(TextRenderStyle::Password)
             .draw(frame, area, &mut self.password);
+    }
+
+    fn draw_debug<B: Backend>(&mut self, frame: &mut Frame<B>) {
+        let state = if self.username.is_focused() {
+            &self.username
+        } else {
+            &self.password
+        };
+        let debug = format!("{state:#?}");
+        let area = Rect::new(frame.size().width - 30, 0, 30, 20);
+        frame.render_widget(Paragraph::new(debug), area);
     }
 
     fn handle_key_event(&mut self, key_event: KeyEvent) {

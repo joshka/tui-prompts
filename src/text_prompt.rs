@@ -87,18 +87,17 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
 
         let width = area.width as usize;
         let height = area.height as usize;
+        let value = self.render_style.render(state);
 
         // The first line will have the parts that are static and the first part of the value that
         // fits in the area.
-        let prompt_length = format!("? {} › ", self.message).len();
-        let mut first_line = Line::from(vec![
+        let mut prompt_line = Line::from(vec![
             state.status.symbol(),
             " ".into(),
             self.message.bold(),
             " › ".cyan().dim(),
         ]);
-
-        let value = self.render_style.render(state);
+        let prompt_length = prompt_line.width();
 
         // Add the first line of the value to the first line of the prompt.
         let first_line_length = width - prompt_length;
@@ -107,7 +106,7 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
             .take(first_line_length)
             .collect::<String>()
             .into();
-        first_line.spans.push(first_line_value);
+        prompt_line.spans.push(first_line_value);
 
         // Each successive line will have the next part of the value that fits in the area, which
         // is calculated by skipping the characters that were already rendered and then splitting
@@ -125,7 +124,7 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
             .map(|c| Line::from(c.collect::<String>()))
             .take(height - 1)
             .collect_vec();
-        lines.insert(0, first_line);
+        lines.insert(0, prompt_line);
 
         // calculate the cursor position
         let position = u16_or(state.position + prompt_length, u16::MAX);

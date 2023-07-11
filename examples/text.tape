@@ -2,11 +2,10 @@
 # run with `vhs text.tape` then `vhs publish text.gif`
 # for docs run `vhs new docs.tape`
 
-Output "examples/text.gif"
+Output "target/text.gif"
 Require "cargo"
 
-# Set Padding 10
-Set Height 260
+Set Height 210
 Set Width 600
 Set Shell zsh
 
