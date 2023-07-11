@@ -1,6 +1,6 @@
 use std::{borrow::Cow, vec};
 
-use crate::{prelude::*, TextState};
+use crate::prelude::*;
 
 use itertools::Itertools;
 use ratatui::prelude::*;
@@ -13,12 +13,32 @@ use ratatui::prelude::*;
 // TODO handle bracketed paste.
 
 /// A prompt widget that displays a message and a text input.
-#[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Hash)]
 pub struct TextPrompt<'a> {
     /// The message to display to the user before the input.
     message: Cow<'a, str>,
     /// The block to wrap the prompt in.
     block: Option<Block<'a>>,
+    render_style: TextRenderStyle,
+}
+
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum TextRenderStyle {
+    #[default]
+    Default,
+    Password,
+    Hidden,
+}
+
+impl TextRenderStyle {
+    #[must_use]
+    pub fn render(&self, state: &TextState) -> String {
+        match self {
+            Self::Default => state.value().to_string(),
+            Self::Password => "*".repeat(state.value().len()),
+            Self::Hidden => String::new(),
+        }
+    }
 }
 
 impl<'a> TextPrompt<'a> {
@@ -27,6 +47,7 @@ impl<'a> TextPrompt<'a> {
         Self {
             message,
             block: None,
+            render_style: TextRenderStyle::Default,
         }
     }
 
@@ -35,6 +56,12 @@ impl<'a> TextPrompt<'a> {
     #[allow(clippy::missing_const_for_fn)]
     pub fn with_block(mut self, block: Block<'a>) -> Self {
         self.block = Some(block);
+        self
+    }
+
+    #[must_use]
+    pub const fn with_render_style(mut self, render_style: TextRenderStyle) -> Self {
+        self.render_style = render_style;
         self
     }
 }
@@ -71,10 +98,11 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
             " › ".cyan().dim(),
         ]);
 
+        let value = self.render_style.render(state);
+
         // Add the first line of the value to the first line of the prompt.
         let first_line_length = width - prompt_length;
-        let first_line_value: Span = state
-            .value
+        let first_line_value: Span = value
             .chars()
             .take(first_line_length)
             .collect::<String>()
@@ -89,8 +117,7 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
         // is my name and I am 99 years
         // old.
         // ```
-        let mut lines = state
-            .value
+        let mut lines = value
             .chars()
             .skip(first_line_length)
             .chunks(width)

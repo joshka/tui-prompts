@@ -5,7 +5,7 @@ use crossterm::event::{self, Event};
 use ratatui::prelude::*;
 
 use tui::Tui;
-use tui_prompts::{prelude::*, TextPrompt, TextState};
+use tui_prompts::prelude::*;
 
 fn main() -> Result<()> {
     run()?;
