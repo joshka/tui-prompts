@@ -1,7 +1,6 @@
-use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
-use ratatui::prelude::*;
-
 use crate::Status;
+use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
+use ratatui::{backend::Backend, layout::Rect, terminal::Frame, widgets::StatefulWidget};
 
 /// A prompt that can be drawn to a terminal.
 pub trait Prompt: StatefulWidget {
@@ -159,12 +158,26 @@ pub trait State {
 
 #[cfg(test)]
 mod tests {
+    use ratatui::{
+        style::{Color, Style},
+        text::Span,
+    };
+
     use super::*;
 
     #[test]
     fn status_symbols() {
-        assert_eq!(Status::Pending.symbol(), "?".cyan());
-        assert_eq!(Status::Aborted.symbol(), "✖".red());
-        assert_eq!(Status::Done.symbol(), "✔".green());
+        assert_eq!(
+            Status::Pending.symbol(),
+            Span::styled("?", Style::new().fg(Color::Cyan))
+        );
+        assert_eq!(
+            Status::Aborted.symbol(),
+            Span::styled("✖", Style::new().fg(Color::Red))
+        );
+        assert_eq!(
+            Status::Done.symbol(),
+            Span::styled("✔", Style::new().fg(Color::Green))
+        );
     }
 }
