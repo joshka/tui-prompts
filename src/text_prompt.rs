@@ -14,6 +14,9 @@ pub struct TextPrompt<'a> {
     block: Option<Block<'a>>,
     // TODO style the widget
     // TODO style each element of the widget.
+    // TODO handle multi-line input.
+    // TODO handle scrolling.
+    // TODO handle vertical movement.
 }
 
 impl<'a> TextPrompt<'a> {
@@ -50,20 +53,15 @@ impl Prompt for TextPrompt<'_> {
 impl<'a> StatefulWidget for TextPrompt<'a> {
     type State = TextState<'a>;
 
-    // TODO: this is a mess, clean it up.
-    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {
-        let mut area = area;
-        if let Some(block) = self.block {
-            let inner = block.inner(area);
-            block.render(area, buf);
-            area = inner;
-        }
+    fn render(mut self, mut area: Rect, buf: &mut Buffer, state: &mut Self::State) {
+        self.render_block(&mut area, buf);
 
         let width = area.width as usize;
         let height = area.height as usize;
 
         // The first line will have the parts that are static and the first part of the value that
         // fits in the area.
+        let prompt_length = format!("? {} › ", self.message).len();
         let mut first_line = Line::from(vec![
             state.status.symbol(),
             " ".into(),
@@ -71,16 +69,15 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
             " › ".cyan().dim(),
         ]);
 
-        let static_part_width = first_line.width();
-        let remaining_width_on_first_line = width - static_part_width;
-        let remaining_span: Span = state
+        // Add the first line of the value to the first line of the prompt.
+        let first_line_length = width - prompt_length;
+        let first_line_value: Span = state
             .value
             .chars()
-            .take(remaining_width_on_first_line)
+            .take(first_line_length)
             .collect::<String>()
             .into();
-        let skip = remaining_span.width();
-        first_line.spans.push(remaining_span);
+        first_line.spans.push(first_line_value);
 
         // Each successive line will have the next part of the value that fits in the area, which
         // is calculated by skipping the characters that were already rendered and then splitting
@@ -93,18 +90,31 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
         let mut lines = state
             .value
             .chars()
-            .skip(skip)
+            .skip(first_line_length)
             .chunks(width)
             .into_iter()
             .map(|c| Line::from(c.collect::<String>()))
             .take(height - 1)
             .collect_vec();
         lines.insert(0, first_line);
-        let position = u16_or(state.position + static_part_width, u16::MAX);
+
+        // calculate the cursor position
+        let position = u16_or(state.position + prompt_length, u16::MAX);
         let width = u16_or(width, 1);
         // TODO constrain to area.
+        // TODO handle scrolling automatically.
         state.cursor = (area.x + position % width, area.y + position / width);
         Paragraph::new(lines).render(area, buf);
+    }
+}
+
+impl<'a> TextPrompt<'a> {
+    fn render_block(&mut self, area: &mut Rect, buf: &mut Buffer) {
+        if let Some(block) = self.block.take() {
+            let inner = block.inner(*area);
+            block.render(*area, buf);
+            *area = inner;
+        };
     }
 }
 
@@ -150,7 +160,7 @@ mod tests {
     #[test]
     fn render_with_done() {
         let prompt = TextPrompt::new("prompt");
-        let mut state = TextState::new().with_status(Status::Complete);
+        let mut state = TextState::new().with_status(Status::Done);
         let mut buffer = Buffer::empty(Rect::new(0, 0, 15, 1));
 
         prompt.render(buffer.area, &mut buffer, &mut state);
