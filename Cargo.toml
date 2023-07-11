@@ -1,12 +1,12 @@
 [package]
 name = "tui-prompts"
-version = "0.1.0"
+version = "0.1.1"
 description = "A library for building interactive prompts for ratatui."
 repository = "https://github.com/joshka/tui-prompts"
 authors = ["Joshka"]
 license = "MIT OR Apache-2.0"
-categories = ["terminal", "terminal-ui", "tui", "prompt", "ratatui"]
-keywords = ["tui", "prompt", "ratatui"]
+categories = ["command-line-interface", "gui"]
+keywords = ["cli", "console", "crossterm", "prompt", "ratatui",  "terminal", "tui"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
