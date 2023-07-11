@@ -6,7 +6,7 @@ repository = "https://github.com/joshka/tui-prompts"
 authors = ["Joshka"]
 license = "MIT OR Apache-2.0"
 categories = ["command-line-interface", "gui"]
-keywords = ["cli", "console", "crossterm", "prompt", "ratatui",  "terminal", "tui"]
+keywords = ["cli", "console", "ratatui",  "terminal", "tui"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
