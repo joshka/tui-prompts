@@ -12,15 +12,11 @@ Add the following to your `Cargo.toml` file:
 [dependencies]
 ratatui = "0.21.0"
 tui-prompts = "0.1.0"
-
-[patch.crates-io]
-ratatui = { git = "https://github.com/joshka/ratatui.git", branch = "feat-stylize-all-the-things" }
-tui-prompts = { git = "https://github.com/joshka/tui-prompts.git" }
 ```
 
 ## Status
 
-This relies on some ratatui features not yet released, and is in a very alpha state.
+Very much a work in progress
 
 ## Examples
 
