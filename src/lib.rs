@@ -1,6 +1,7 @@
 #![warn(clippy::pedantic, clippy::nursery, clippy::cargo, unused)]
 
 mod prompt;
+mod status;
 
 mod password_prompt;
 mod password_state;
@@ -9,6 +10,7 @@ mod text_prompt;
 mod text_state;
 
 pub use prompt::*;
+pub use status::*;
 
 pub use text_prompt::*;
 pub use text_state::*;

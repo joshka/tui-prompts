@@ -1,6 +1,8 @@
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
 use ratatui::prelude::*;
 
+use crate::Status;
+
 /// A prompt that can be drawn to a terminal.
 pub trait Prompt: StatefulWidget {
     /// Draws the prompt widget.
@@ -11,31 +13,6 @@ pub trait Prompt: StatefulWidget {
     /// [`StatefulWidget`]: ratatui::widgets::StatefulWidget
     /// [`Frame`]: ratatui::Frame
     fn draw<B: Backend>(self, frame: &mut Frame<B>, area: Rect, state: &mut Self::State);
-}
-
-/// The result of a prompt.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum Status {
-    #[default]
-    Pending,
-    Aborted,
-    Complete,
-}
-
-impl Status {
-    #[must_use]
-    pub const fn is_finished(self) -> bool {
-        matches!(self, Self::Complete | Self::Aborted)
-    }
-
-    #[must_use]
-    pub fn symbol(&self) -> Span<'static> {
-        match self {
-            Self::Pending => "?".cyan(),
-            Self::Aborted => "✖".red(),
-            Self::Complete => "✔".green(),
-        }
-    }
 }
 
 /// The focus state of a prompt.
@@ -114,7 +91,7 @@ pub trait State {
     }
 
     fn complete(&mut self) {
-        *self.status_mut() = Status::Complete;
+        *self.status_mut() = Status::Done;
     }
 
     fn abort(&mut self) {
@@ -182,6 +159,6 @@ mod tests {
     fn status_symbols() {
         assert_eq!(Status::Pending.symbol(), "?".cyan());
         assert_eq!(Status::Aborted.symbol(), "✖".red());
-        assert_eq!(Status::Complete.symbol(), "✔".green());
+        assert_eq!(Status::Done.symbol(), "✔".green());
     }
 }

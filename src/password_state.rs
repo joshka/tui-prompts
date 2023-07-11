@@ -37,7 +37,7 @@ impl<'a> PasswordState<'a> {
 
     #[must_use]
     pub const fn is_finished(&self) -> bool {
-        matches!(self.status, Status::Complete | Status::Aborted)
+        self.status.is_finished()
     }
 }
 
