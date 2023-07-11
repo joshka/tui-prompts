@@ -1,4 +1,7 @@
-use ratatui::prelude::*;
+use ratatui::{
+    style::{Color, Style},
+    text::Span,
+};
 
 /// The result of a prompt.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
@@ -25,7 +28,7 @@ impl Status {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct Symbols {
     pub pending: Span<'static>,
     pub aborted: Span<'static>,
@@ -35,9 +38,9 @@ struct Symbols {
 impl Default for Symbols {
     fn default() -> Self {
         Self {
-            pending: "?".cyan(),
-            aborted: "✖".red(),
-            done: "✔".green(),
+            pending: Span::styled("?", Style::new().fg(Color::Cyan)),
+            aborted: Span::styled("✘", Style::new().fg(Color::Red)),
+            done: Span::styled("✔", Style::new().fg(Color::Green)),
         }
     }
 }

@@ -4,7 +4,7 @@ use std::{
 };
 
 use color_eyre::Result;
-use ratatui::prelude::*;
+use ratatui::{backend::CrosstermBackend, terminal::Terminal};
 
 /// A wrapper around the terminal that enables raw mode on creation and disables it on drop.
 pub struct Tui {

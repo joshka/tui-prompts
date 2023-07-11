@@ -17,10 +17,11 @@ itertools = "0.11"
 ratatui = "0.21"
 
 [dev-dependencies]
+clap = { version = "4.3.11", features = ["derive"] }
 color-eyre = "0.6.2"
 indoc = "2.0.1"
 
 [patch.crates-io]
 # take advantage of the latest unreleased ratatui features
-ratatui = { git = "https://github.com/joshka/ratatui.git", branch = "feat-stylize-all-the-things" }
-# ratatui = { path = "../ratatui" }
+# ratatui = { git = "https://github.com/joshka/ratatui.git", branch = "feat-stylize-all-the-things" }
+#ratatui = { path = "../ratatui" }

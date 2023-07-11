@@ -3,7 +3,7 @@ mod tui;
 use clap::Parser;
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyEvent};
-use ratatui::prelude::*;
+use ratatui::{backend::Backend, layout::Rect, terminal::Frame, widgets::Paragraph};
 
 use tui::Tui;
 use tui_prompts::prelude::*;

@@ -3,7 +3,15 @@ use std::{borrow::Cow, vec};
 use crate::prelude::*;
 
 use itertools::Itertools;
-use ratatui::prelude::*;
+use ratatui::{
+    backend::Backend,
+    buffer::Buffer,
+    layout::Rect,
+    style::{Color, Modifier, Style},
+    terminal::Frame,
+    text::{Line, Span},
+    widgets::{Block, Paragraph, StatefulWidget, Widget},
+};
 
 // TODO style the widget
 // TODO style each element of the widget.
@@ -13,7 +21,7 @@ use ratatui::prelude::*;
 // TODO handle bracketed paste.
 
 /// A prompt widget that displays a message and a text input.
-#[derive(Debug, Default, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct TextPrompt<'a> {
     /// The message to display to the user before the input.
     message: Cow<'a, str>,
@@ -94,8 +102,13 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
         let mut prompt_line = Line::from(vec![
             state.status.symbol(),
             " ".into(),
-            self.message.bold(),
-            " › ".cyan().dim(),
+            Span::styled(self.message, Style::default().add_modifier(Modifier::BOLD)),
+            Span::styled(
+                " › ",
+                Style::default()
+                    .fg(Color::Cyan)
+                    .add_modifier(Modifier::BOLD),
+            ),
         ]);
         let prompt_length = prompt_line.width();
 
@@ -164,14 +177,12 @@ mod tests {
     use crate::Status;
 
     use super::*;
-    use ratatui::assert_buffer_eq;
+    use ratatui::{assert_buffer_eq, widgets::Borders};
 
     // TODO make these configurable
     const PENDING_STYLE: Style = Style::new().fg(Color::Cyan);
     const COMPLETE_STYLE: Style = Style::new().fg(Color::Green);
     const ABORTED_STYLE: Style = Style::new().fg(Color::Red);
-    const MESSAGE_STYLE: Style = Style::new().add_modifier(Modifier::BOLD);
-    const MESSAGE_SEPERATOR_STYLE: Style = Style::new().fg(Color::Cyan).add_modifier(Modifier::DIM);
 
     #[test]
     fn new() {
@@ -194,8 +205,14 @@ mod tests {
 
         let mut expected = Buffer::with_lines(vec!["? prompt ›     "]);
         expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
-        expected.set_style(Rect::new(2, 0, 6, 1), MESSAGE_STYLE);
-        expected.set_style(Rect::new(8, 0, 3, 1), MESSAGE_SEPERATOR_STYLE);
+        expected.set_style(
+            Rect::new(2, 0, 6, 1),
+            Style::new().add_modifier(Modifier::BOLD),
+        );
+        expected.set_style(
+            Rect::new(8, 0, 3, 1),
+            Style::new().fg(Color::Cyan).add_modifier(Modifier::DIM),
+        );
         assert_buffer_eq!(buffer, expected);
     }
 
@@ -209,8 +226,14 @@ mod tests {
 
         let mut expected = Buffer::with_lines(vec!["✔ prompt ›     "]);
         expected.set_style(Rect::new(0, 0, 1, 1), COMPLETE_STYLE);
-        expected.set_style(Rect::new(2, 0, 6, 1), MESSAGE_STYLE);
-        expected.set_style(Rect::new(8, 0, 3, 1), MESSAGE_SEPERATOR_STYLE);
+        expected.set_style(
+            Rect::new(2, 0, 6, 1),
+            Style::new().add_modifier(Modifier::BOLD),
+        );
+        expected.set_style(
+            Rect::new(8, 0, 3, 1),
+            Style::new().fg(Color::Cyan).add_modifier(Modifier::DIM),
+        );
         assert_buffer_eq!(buffer, expected);
     }
 
@@ -224,8 +247,14 @@ mod tests {
 
         let mut expected = Buffer::with_lines(vec!["✖ prompt ›     "]);
         expected.set_style(Rect::new(0, 0, 1, 1), ABORTED_STYLE);
-        expected.set_style(Rect::new(2, 0, 6, 1), MESSAGE_STYLE);
-        expected.set_style(Rect::new(8, 0, 3, 1), MESSAGE_SEPERATOR_STYLE);
+        expected.set_style(
+            Rect::new(2, 0, 6, 1),
+            Style::new().add_modifier(Modifier::BOLD),
+        );
+        expected.set_style(
+            Rect::new(8, 0, 3, 1),
+            Style::new().fg(Color::Cyan).add_modifier(Modifier::DIM),
+        );
         assert_buffer_eq!(buffer, expected);
     }
 
@@ -239,8 +268,14 @@ mod tests {
 
         let mut expected = Buffer::with_lines(vec!["? prompt › value              "]);
         expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
-        expected.set_style(Rect::new(2, 0, 6, 1), MESSAGE_STYLE);
-        expected.set_style(Rect::new(8, 0, 3, 1), MESSAGE_SEPERATOR_STYLE);
+        expected.set_style(
+            Rect::new(2, 0, 6, 1),
+            Style::new().add_modifier(Modifier::BOLD),
+        );
+        expected.set_style(
+            Rect::new(8, 0, 3, 1),
+            Style::new().fg(Color::Cyan).add_modifier(Modifier::DIM),
+        );
         assert_buffer_eq!(buffer, expected);
     }
 
@@ -259,8 +294,14 @@ mod tests {
             "└─────────────┘",
         ]);
         expected.set_style(Rect::new(1, 1, 1, 1), PENDING_STYLE);
-        expected.set_style(Rect::new(3, 1, 6, 1), MESSAGE_STYLE);
-        expected.set_style(Rect::new(9, 1, 3, 1), MESSAGE_SEPERATOR_STYLE);
+        expected.set_style(
+            Rect::new(3, 1, 6, 1),
+            Style::new().add_modifier(Modifier::BOLD),
+        );
+        expected.set_style(
+            Rect::new(9, 1, 3, 1),
+            Style::new().fg(Color::Cyan).add_modifier(Modifier::DIM),
+        );
         assert_buffer_eq!(buffer, expected);
     }
 }
