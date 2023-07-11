@@ -32,6 +32,6 @@ fn run() -> Result<(), color_eyre::Report> {
 
 fn draw_ui<B: Backend>(frame: &mut Frame<B>, state: &mut TextState) {
     let area = Rect::new(0, 0, 25, 4);
-    let prompt = TextPrompt::new("Text");
+    let prompt = TextPrompt::from("Text");
     prompt.draw(frame, area, state);
 }

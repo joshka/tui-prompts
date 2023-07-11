@@ -5,6 +5,13 @@ use crate::{prelude::*, TextState};
 use itertools::Itertools;
 use ratatui::prelude::*;
 
+// TODO style the widget
+// TODO style each element of the widget.
+// TODO handle multi-line input.
+// TODO handle scrolling.
+// TODO handle vertical movement.
+// TODO handle bracketed paste.
+
 /// A prompt widget that displays a message and a text input.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct TextPrompt<'a> {
@@ -12,19 +19,14 @@ pub struct TextPrompt<'a> {
     message: Cow<'a, str>,
     /// The block to wrap the prompt in.
     block: Option<Block<'a>>,
-    // TODO style the widget
-    // TODO style each element of the widget.
-    // TODO handle multi-line input.
-    // TODO handle scrolling.
-    // TODO handle vertical movement.
 }
 
 impl<'a> TextPrompt<'a> {
     #[must_use]
-    pub fn new(message: impl Into<Cow<'a, str>>) -> Self {
+    pub const fn new(message: Cow<'a, str>) -> Self {
         Self {
-            message: message.into(),
-            ..Default::default()
+            message,
+            block: None,
         }
     }
 
@@ -118,6 +120,15 @@ impl<'a> TextPrompt<'a> {
     }
 }
 
+impl<T> From<T> for TextPrompt<'static>
+where
+    T: Into<Cow<'static, str>>,
+{
+    fn from(message: T) -> Self {
+        Self::new(message.into())
+    }
+}
+
 fn u16_or(x: usize, default: u16) -> u16 {
     x.try_into().unwrap_or(default)
 }
@@ -138,13 +149,18 @@ mod tests {
 
     #[test]
     fn new() {
-        let prompt = TextPrompt::new("Enter your name");
-        assert_eq!(prompt.message, "Enter your name");
+        const PROMPT: TextPrompt<'_> = TextPrompt::new(Cow::Borrowed("Enter your name"));
+        assert_eq!(PROMPT.message, "Enter your name");
     }
 
     #[test]
+    fn from() {
+        let prompt = TextPrompt::from("Enter your name");
+        assert_eq!(prompt.message, "Enter your name");
+    }
+    #[test]
     fn render() {
-        let prompt = TextPrompt::new("prompt");
+        let prompt = TextPrompt::from("prompt");
         let mut state = TextState::new();
         let mut buffer = Buffer::empty(Rect::new(0, 0, 15, 1));
 
@@ -159,7 +175,7 @@ mod tests {
 
     #[test]
     fn render_with_done() {
-        let prompt = TextPrompt::new("prompt");
+        let prompt = TextPrompt::from("prompt");
         let mut state = TextState::new().with_status(Status::Done);
         let mut buffer = Buffer::empty(Rect::new(0, 0, 15, 1));
 
@@ -174,7 +190,7 @@ mod tests {
 
     #[test]
     fn render_with_aborted() {
-        let prompt = TextPrompt::new("prompt");
+        let prompt = TextPrompt::from("prompt");
         let mut state = TextState::new().with_status(Status::Aborted);
         let mut buffer = Buffer::empty(Rect::new(0, 0, 15, 1));
 
@@ -189,7 +205,7 @@ mod tests {
 
     #[test]
     fn render_with_value() {
-        let prompt = TextPrompt::new("prompt");
+        let prompt = TextPrompt::from("prompt");
         let mut state = TextState::new().with_value("value");
         let mut buffer = Buffer::empty(Rect::new(0, 0, 30, 1));
 
@@ -204,7 +220,7 @@ mod tests {
 
     #[test]
     fn render_with_block() {
-        let prompt = TextPrompt::new("prompt")
+        let prompt = TextPrompt::from("prompt")
             .with_block(Block::default().borders(Borders::ALL).title("Title"));
         let mut state = TextState::new();
         let mut buffer = Buffer::empty(Rect::new(0, 0, 15, 3));
