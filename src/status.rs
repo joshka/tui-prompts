@@ -11,7 +11,7 @@ pub enum Status {
 
 impl Status {
     #[must_use]
-    pub const fn is_finished(self) -> bool {
+    pub const fn is_finished(&self) -> bool {
         matches!(self, Self::Done | Self::Aborted)
     }
 

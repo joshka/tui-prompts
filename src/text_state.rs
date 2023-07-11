@@ -13,14 +13,14 @@ pub struct TextState<'a> {
 
 impl<'a> TextState<'a> {
     #[must_use]
-    pub fn new() -> Self {
-        Self::default()
-    }
-
-    #[must_use]
-    pub fn with_value(mut self, value: impl Into<Cow<'a, str>>) -> Self {
-        self.value = value.into();
-        self
+    pub const fn new() -> Self {
+        Self {
+            status: Status::Pending,
+            focus: Focus::Unfocused,
+            position: 0,
+            cursor: (0, 0),
+            value: Cow::Borrowed(""),
+        }
     }
 
     #[must_use]
@@ -36,8 +36,19 @@ impl<'a> TextState<'a> {
     }
 
     #[must_use]
+    pub fn with_value(mut self, value: impl Into<Cow<'a, str>>) -> Self {
+        self.value = value.into();
+        self
+    }
+
+    #[must_use]
     pub const fn is_finished(&self) -> bool {
         self.status.is_finished()
+    }
+
+    #[must_use]
+    pub const fn is_focused(&self) -> bool {
+        self.focus.is_focused()
     }
 }
 

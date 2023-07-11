@@ -10,21 +10,12 @@ Set Height 260
 Set Width 600
 Set Shell zsh
 
-Type "cargo -q run --example text"
+Type "cargo -q run --example=text"
 Enter
 Sleep 2s
-Type "asdf <enter>"
+Type "asdf"
 Enter
 Sleep 2s
-Type "cargo -q run --example text"
+Type "password"
 Enter
 Sleep 2s
-Type "asdf <esc>"
-Sleep 2s
-Escape
-Sleep 2s
-Type "cargo -q run --example text"
-Enter
-Sleep 2s
-Type "long text that wraps around the screen"
-Sleep 5s

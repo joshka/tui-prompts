@@ -19,8 +19,14 @@ pub trait Prompt: StatefulWidget {
 #[derive(Debug, Clone, Default, Copy, PartialEq, Eq, Hash)]
 pub enum Focus {
     #[default]
-    NotFocused,
+    Unfocused,
     Focused,
+}
+impl Focus {
+    #[must_use]
+    pub const fn is_focused(&self) -> bool {
+        matches!(self, Self::Focused)
+    }
 }
 
 /// The state of a prompt.

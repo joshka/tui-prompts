@@ -19,10 +19,16 @@ Pre-Alpha
 
 ## Examples
 
-### Text ([text.rs](./examples/text.rs))
+```rust
+fn draw_ui<B: Backend>(&mut self, frame: &mut Frame<B>) {
+    let area = Rect::new(0, 0, frame.size().width, 1);
+    TextPrompt::from("Username").draw(frame, area, &mut self.username);
 
-![Text Example](https://vhs.charm.sh/vhs-71AGPkd5DExOhgelWulK7e.gif)
+    let area = Rect::new(0, 1, frame.size().width, 1);
+    TextPrompt::from("Password")
+        .with_render_style(TextRenderStyle::Password)
+        .draw(frame, area, &mut self.password);
+}
+```
 
-### Password ([password.rs](./examples/password.rs))
-
-![Password Example](https://vhs.charm.sh/vhs-5c9ruqSJirlQtRutEaIv9z.gif)
+![Text Prompt](https://vhs.charm.sh/vhs-4l3c6ufDiij4UQiZW07heP.gif)
