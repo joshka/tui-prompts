@@ -1,3 +1,4 @@
+![](https://user-images.githubusercontent.com/381361/252977280-49b9ff66-f78d-4e16-b5ed-29d771bfcab2.png) 
 # tui-prompts
 
 `tui-prompts` is a Rust crate that provides prompt widgets for the Ratatui crate. It allows for easy
