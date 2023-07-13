@@ -1,5 +1,7 @@
 mod tui;
 
+use std::{thread::sleep, time::Duration};
+
 use clap::Parser;
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyEvent};
@@ -18,7 +20,8 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
     let mut app = App::new(cli);
     app.run()?;
-    println!(); // to prevent the cursor from being on the same line as the prompt.
+    // prevent the cursor from being on the same line as the prompt.
+    println!();
     Ok(())
 }
 
@@ -52,6 +55,9 @@ impl<'a> App<'a> {
                 self.handle_key_event(key_event);
             }
         }
+        tui.hide_cursor()?;
+        // wait a second before exiting so the user can see the final state of the UI.
+        sleep(Duration::from_secs(1));
         Ok(())
     }
 
