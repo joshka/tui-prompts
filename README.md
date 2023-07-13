@@ -1,5 +1,13 @@
-![](https://user-images.githubusercontent.com/381361/252977280-49b9ff66-f78d-4e16-b5ed-29d771bfcab2.png) 
+![](https://user-images.githubusercontent.com/381361/252977280-49b9ff66-f78d-4e16-b5ed-29d771bfcab2.png)
+
 # tui-prompts
+
+[![Crates.io](https://img.shields.io/crates/v/tui-prompts?logo=rust&style=for-the-badge)](https://crates.io/crates/tui-prompts)
+[![License](https://img.shields.io/crates/l/tui-prompts?style=for-the-badge)](./LICENSE)
+[![Docs.rs](https://img.shields.io/docsrs/tui-prompts?logo=rust&style=for-the-badge)](https://docs.rs/crate/tui-prompts/)  
+[![Dependency Status](https://deps.rs/repo/github/joshka/tui-prompts/status.svg?style=for-the-badge)](https://deps.rs/repo/github/joshka/tui-prompts)
+[![Codecov](https://img.shields.io/codecov/c/github/joshka/tui-prompts?logo=codecov&style=for-the-badge&token=BAQ8SOKEST)](https://app.codecov.io/gh/joshka/tui-prompts)
+[![Discord](https://img.shields.io/discord/1070692720437383208?label=ratatui+discord&logo=discord&style=for-the-badge)](https://discord.gg/pMCEU9hNEj)
 
 `tui-prompts` is a Rust crate that provides prompt widgets for the Ratatui crate. It allows for easy
 creation of interactive command-line interfaces with various types of prompts. Inspired by
