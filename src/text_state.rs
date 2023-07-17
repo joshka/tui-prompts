@@ -5,10 +5,11 @@ use crate::{prelude::*, State};
 #[derive(Debug, Default, Clone, PartialEq, Eq, Hash)]
 pub struct TextState<'a> {
     pub status: Status,
-    pub focus: Focus,
+    pub focus: FocusState,
     pub position: usize,
     pub cursor: (u16, u16),
     pub value: Cow<'a, str>,
+    pub render_height: usize,
 }
 
 impl<'a> TextState<'a> {
@@ -16,10 +17,11 @@ impl<'a> TextState<'a> {
     pub const fn new() -> Self {
         Self {
             status: Status::Pending,
-            focus: Focus::Unfocused,
+            focus: FocusState::Unfocused,
             position: 0,
             cursor: (0, 0),
             value: Cow::Borrowed(""),
+            render_height: 1,
         }
     }
 
@@ -30,7 +32,7 @@ impl<'a> TextState<'a> {
     }
 
     #[must_use]
-    pub const fn with_focus(mut self, focus: Focus) -> Self {
+    pub const fn with_focus(mut self, focus: FocusState) -> Self {
         self.focus = focus;
         self
     }
@@ -45,11 +47,6 @@ impl<'a> TextState<'a> {
     pub const fn is_finished(&self) -> bool {
         self.status.is_finished()
     }
-
-    #[must_use]
-    pub const fn is_focused(&self) -> bool {
-        self.focus.is_focused()
-    }
 }
 
 impl State for TextState<'_> {
@@ -57,20 +54,20 @@ impl State for TextState<'_> {
         self.status
     }
 
-    fn focus(&self) -> Focus {
+    fn status_mut(&mut self) -> &mut Status {
+        &mut self.status
+    }
+
+    fn focus_state_mut(&mut self) -> &mut FocusState {
+        &mut self.focus
+    }
+
+    fn focus_state(&self) -> FocusState {
         self.focus
     }
 
     fn position(&self) -> usize {
         self.position
-    }
-
-    fn status_mut(&mut self) -> &mut Status {
-        &mut self.status
-    }
-
-    fn focus_mut(&mut self) -> &mut Focus {
-        &mut self.focus
     }
 
     fn position_mut(&mut self) -> &mut usize {

@@ -1,7 +1,4 @@
-use ratatui::{
-    style::{Color, Style},
-    text::Span,
-};
+use ratatui::{style::Stylize, text::Span};
 
 /// The result of a prompt.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
@@ -38,9 +35,9 @@ struct Symbols {
 impl Default for Symbols {
     fn default() -> Self {
         Self {
-            pending: Span::styled("?", Style::new().fg(Color::Cyan)),
-            aborted: Span::styled("✘", Style::new().fg(Color::Red)),
-            done: Span::styled("✔", Style::new().fg(Color::Green)),
+            pending: "?".cyan(),
+            aborted: "✘".red(),
+            done: "✔".green(),
         }
     }
 }

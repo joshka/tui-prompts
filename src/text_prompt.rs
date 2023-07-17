@@ -3,15 +3,7 @@ use std::{borrow::Cow, vec};
 use crate::prelude::*;
 
 use itertools::Itertools;
-use ratatui::{
-    backend::Backend,
-    buffer::Buffer,
-    layout::Rect,
-    style::{Color, Modifier, Style},
-    terminal::Frame,
-    text::{Line, Span},
-    widgets::{Block, Paragraph, StatefulWidget, Widget},
-};
+use ratatui::{prelude::*, widgets::*};
 
 // TODO style the widget
 // TODO style each element of the widget.
@@ -35,7 +27,7 @@ pub enum TextRenderStyle {
     #[default]
     Default,
     Password,
-    Hidden,
+    Invisible,
 }
 
 impl TextRenderStyle {
@@ -44,7 +36,7 @@ impl TextRenderStyle {
         match self {
             Self::Default => state.value().to_string(),
             Self::Password => "*".repeat(state.value().len()),
-            Self::Hidden => String::new(),
+            Self::Invisible => String::new(),
         }
     }
 }
@@ -81,7 +73,7 @@ impl Prompt for TextPrompt<'_> {
     /// cursor position.
     fn draw<B: Backend>(self, frame: &mut Frame<B>, area: Rect, state: &mut Self::State) {
         frame.render_stateful_widget(self, area, state);
-        if state.focus == Focus::Focused {
+        if state.focus == FocusState::Focused {
             frame.set_cursor(state.cursor.0, state.cursor.1);
         }
     }
@@ -102,13 +94,8 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
         let mut prompt_line = Line::from(vec![
             state.status.symbol(),
             " ".into(),
-            Span::styled(self.message, Style::default().add_modifier(Modifier::BOLD)),
-            Span::styled(
-                " › ",
-                Style::default()
-                    .fg(Color::Cyan)
-                    .add_modifier(Modifier::BOLD),
-            ),
+            self.message.bold(),
+            " › ".cyan().dim(),
         ]);
         let prompt_length = prompt_line.width();
 
@@ -140,11 +127,15 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
         lines.insert(0, prompt_line);
 
         // calculate the cursor position
-        let position = u16_or(state.position + prompt_length, u16::MAX);
+        let position = u16_or(
+            usize::min(state.position, value.len()) + prompt_length,
+            u16::MAX,
+        );
         let width = u16_or(width, 1);
         // TODO constrain to area.
         // TODO handle scrolling automatically.
         state.cursor = (area.x + position % width, area.y + position / width);
+        state.render_height = lines.len();
         Paragraph::new(lines).render(area, buf);
     }
 }
@@ -205,14 +196,8 @@ mod tests {
 
         let mut expected = Buffer::with_lines(vec!["? prompt ›     "]);
         expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
-        expected.set_style(
-            Rect::new(2, 0, 6, 1),
-            Style::new().add_modifier(Modifier::BOLD),
-        );
-        expected.set_style(
-            Rect::new(8, 0, 3, 1),
-            Style::new().fg(Color::Cyan).add_modifier(Modifier::DIM),
-        );
+        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
+        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
         assert_buffer_eq!(buffer, expected);
     }
 
@@ -226,14 +211,8 @@ mod tests {
 
         let mut expected = Buffer::with_lines(vec!["✔ prompt ›     "]);
         expected.set_style(Rect::new(0, 0, 1, 1), COMPLETE_STYLE);
-        expected.set_style(
-            Rect::new(2, 0, 6, 1),
-            Style::new().add_modifier(Modifier::BOLD),
-        );
-        expected.set_style(
-            Rect::new(8, 0, 3, 1),
-            Style::new().fg(Color::Cyan).add_modifier(Modifier::DIM),
-        );
+        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
+        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
         assert_buffer_eq!(buffer, expected);
     }
 
@@ -245,16 +224,10 @@ mod tests {
 
         prompt.render(buffer.area, &mut buffer, &mut state);
 
-        let mut expected = Buffer::with_lines(vec!["✖ prompt ›     "]);
+        let mut expected = Buffer::with_lines(vec!["✘ prompt ›     "]);
         expected.set_style(Rect::new(0, 0, 1, 1), ABORTED_STYLE);
-        expected.set_style(
-            Rect::new(2, 0, 6, 1),
-            Style::new().add_modifier(Modifier::BOLD),
-        );
-        expected.set_style(
-            Rect::new(8, 0, 3, 1),
-            Style::new().fg(Color::Cyan).add_modifier(Modifier::DIM),
-        );
+        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
+        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
         assert_buffer_eq!(buffer, expected);
     }
 
@@ -268,14 +241,8 @@ mod tests {
 
         let mut expected = Buffer::with_lines(vec!["? prompt › value              "]);
         expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
-        expected.set_style(
-            Rect::new(2, 0, 6, 1),
-            Style::new().add_modifier(Modifier::BOLD),
-        );
-        expected.set_style(
-            Rect::new(8, 0, 3, 1),
-            Style::new().fg(Color::Cyan).add_modifier(Modifier::DIM),
-        );
+        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
+        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
         assert_buffer_eq!(buffer, expected);
     }
 
@@ -294,14 +261,8 @@ mod tests {
             "└─────────────┘",
         ]);
         expected.set_style(Rect::new(1, 1, 1, 1), PENDING_STYLE);
-        expected.set_style(
-            Rect::new(3, 1, 6, 1),
-            Style::new().add_modifier(Modifier::BOLD),
-        );
-        expected.set_style(
-            Rect::new(9, 1, 3, 1),
-            Style::new().fg(Color::Cyan).add_modifier(Modifier::DIM),
-        );
+        expected.set_style(Rect::new(3, 1, 6, 1), Style::new().bold());
+        expected.set_style(Rect::new(9, 1, 3, 1), Style::new().cyan().dim());
         assert_buffer_eq!(buffer, expected);
     }
 }

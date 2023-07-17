@@ -4,7 +4,7 @@ use std::{
 };
 
 use color_eyre::Result;
-use ratatui::{backend::CrosstermBackend, terminal::Terminal};
+use ratatui::prelude::*;
 
 /// A wrapper around the terminal that enables raw mode on creation and disables it on drop.
 pub struct Tui {
@@ -13,8 +13,27 @@ pub struct Tui {
 
 impl Tui {
     pub fn new() -> Result<Self> {
-        let terminal = setup_terminal()?;
+        let terminal = Self::init()?;
         Ok(Self { terminal })
+    }
+
+    fn init() -> Result<Terminal<CrosstermBackend<Stderr>>> {
+        let buffer = std::io::stderr();
+        let mut backend = CrosstermBackend::new(buffer);
+        crossterm::execute!(backend, crossterm::terminal::EnterAlternateScreen)?;
+        crossterm::terminal::enable_raw_mode()?;
+        let mut terminal = Terminal::new(backend)?;
+        terminal.clear()?;
+        Ok(terminal)
+    }
+
+    fn cleanup(&mut self) -> Result<()> {
+        crossterm::execute!(
+            self.terminal.backend_mut(),
+            crossterm::terminal::LeaveAlternateScreen
+        )?;
+        crossterm::terminal::disable_raw_mode()?;
+        Ok(())
     }
 }
 
@@ -34,20 +53,6 @@ impl DerefMut for Tui {
 
 impl Drop for Tui {
     fn drop(&mut self) {
-        cleanup_terminal().unwrap();
+        self.cleanup().unwrap();
     }
-}
-
-fn setup_terminal() -> Result<Terminal<CrosstermBackend<Stderr>>> {
-    let stdout = std::io::stderr();
-    let backend = CrosstermBackend::new(stdout);
-    crossterm::terminal::enable_raw_mode()?;
-    let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
-    Ok(terminal)
-}
-
-fn cleanup_terminal() -> Result<()> {
-    crossterm::terminal::disable_raw_mode()?;
-    Ok(())
 }

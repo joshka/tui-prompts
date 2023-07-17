@@ -13,7 +13,7 @@ pub use text_prompt::*;
 pub use text_state::*;
 
 pub mod prelude {
-    pub use crate::Focus;
+    pub use crate::FocusState;
     pub use crate::Prompt;
     pub use crate::State;
     pub use crate::Status;

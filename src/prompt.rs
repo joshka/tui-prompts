@@ -1,6 +1,6 @@
 use crate::Status;
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
-use ratatui::{backend::Backend, layout::Rect, terminal::Frame, widgets::StatefulWidget};
+use ratatui::{prelude::*, widgets::*};
 
 /// A prompt that can be drawn to a terminal.
 pub trait Prompt: StatefulWidget {
@@ -16,16 +16,10 @@ pub trait Prompt: StatefulWidget {
 
 /// The focus state of a prompt.
 #[derive(Debug, Clone, Default, Copy, PartialEq, Eq, Hash)]
-pub enum Focus {
+pub enum FocusState {
     #[default]
     Unfocused,
     Focused,
-}
-impl Focus {
-    #[must_use]
-    pub const fn is_focused(&self) -> bool {
-        matches!(self, Self::Focused)
-    }
 }
 
 /// The state of a prompt.
@@ -48,11 +42,26 @@ pub trait State {
     /// A mutable reference to the status of the prompt.
     fn status_mut(&mut self) -> &mut Status;
 
-    /// The focus state of the prompt.
-    fn focus(&self) -> Focus;
-
     /// A mutable reference to the focus state of the prompt.
-    fn focus_mut(&mut self) -> &mut Focus;
+    fn focus_state_mut(&mut self) -> &mut FocusState;
+
+    /// The focus state of the prompt.
+    fn focus_state(&self) -> FocusState;
+
+    /// Sets the focus state of the prompt to [`Focus::Focused`].
+    fn focus(&mut self) {
+        *self.focus_state_mut() = FocusState::Focused;
+    }
+
+    /// Sets the focus state of the prompt to [`Focus::Unfocused`].
+    fn blur(&mut self) {
+        *self.focus_state_mut() = FocusState::Unfocused;
+    }
+
+    /// Whether the prompt is focused.
+    fn is_focused(&self) -> bool {
+        self.focus_state() == FocusState::Focused
+    }
 
     /// The position of the cursor in the prompt.
     fn position(&self) -> usize;
@@ -90,7 +99,9 @@ pub trait State {
             (KeyCode::Delete, _) | (KeyCode::Char('d'), KeyModifiers::CONTROL) => self.delete(),
             (KeyCode::Char('k'), KeyModifiers::CONTROL) => self.kill(),
             (KeyCode::Char('u'), KeyModifiers::CONTROL) => self.truncate(),
-            (KeyCode::Char(c), KeyModifiers::NONE) => self.push(c),
+            (KeyCode::Char(c), KeyModifiers::NONE) | (KeyCode::Char(c), KeyModifiers::SHIFT) => {
+                self.push(c)
+            }
             _ => {}
         }
     }
@@ -158,26 +169,12 @@ pub trait State {
 
 #[cfg(test)]
 mod tests {
-    use ratatui::{
-        style::{Color, Style},
-        text::Span,
-    };
-
     use super::*;
 
     #[test]
     fn status_symbols() {
-        assert_eq!(
-            Status::Pending.symbol(),
-            Span::styled("?", Style::new().fg(Color::Cyan))
-        );
-        assert_eq!(
-            Status::Aborted.symbol(),
-            Span::styled("✖", Style::new().fg(Color::Red))
-        );
-        assert_eq!(
-            Status::Done.symbol(),
-            Span::styled("✔", Style::new().fg(Color::Green))
-        );
+        assert_eq!(Status::Pending.symbol(), "?".cyan());
+        assert_eq!(Status::Aborted.symbol(), "✘".red());
+        assert_eq!(Status::Done.symbol(), "✔".green());
     }
 }

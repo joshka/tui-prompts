@@ -48,7 +48,7 @@ impl<'a> App<'a> {
 }
 ```
 
-![Text Prompt](https://vhs.charm.sh/vhs-47O0qLEBG75b5vRzi5qNEr.gif)
+![Text Prompt](https://vhs.charm.sh/vhs-1o1m3o1jSCtdacuZwz326V.gif)
 
 ## License
 
