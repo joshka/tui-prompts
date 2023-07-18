@@ -56,6 +56,7 @@ impl<'a> App<'a> {
 - [x] Invisible prompt
 - [x] Readline / emacs style Key Bindings
 - [x] Crossterm backend
+- [x] Soft wrapping single lines
 - [ ] Multi-line input
 - [ ] Scrolling
 - [ ] More prompt types:

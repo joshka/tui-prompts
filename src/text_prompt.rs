@@ -168,7 +168,7 @@ mod tests {
     use crate::Status;
 
     use super::*;
-    use ratatui::{assert_buffer_eq, widgets::Borders};
+    use ratatui::{assert_buffer_eq, backend::TestBackend, widgets::Borders};
 
     // TODO make these configurable
     const PENDING_STYLE: Style = Style::new().fg(Color::Cyan);
@@ -179,6 +179,16 @@ mod tests {
     fn new() {
         const PROMPT: TextPrompt<'_> = TextPrompt::new(Cow::Borrowed("Enter your name"));
         assert_eq!(PROMPT.message, "Enter your name");
+        assert_eq!(PROMPT.block, None);
+        assert_eq!(PROMPT.render_style, TextRenderStyle::Default);
+    }
+
+    #[test]
+    fn default() {
+        let prompt = TextPrompt::default();
+        assert_eq!(prompt.message, "");
+        assert_eq!(prompt.block, None);
+        assert_eq!(prompt.render_style, TextRenderStyle::Default);
     }
 
     #[test]
@@ -264,5 +274,143 @@ mod tests {
         expected.set_style(Rect::new(3, 1, 6, 1), Style::new().bold());
         expected.set_style(Rect::new(9, 1, 3, 1), Style::new().cyan().dim());
         assert_buffer_eq!(buffer, expected);
+    }
+
+    #[test]
+    fn render_password() {
+        let prompt = TextPrompt::from("prompt").with_render_style(TextRenderStyle::Password);
+        let mut state = TextState::new().with_value("value");
+        let mut buffer = Buffer::empty(Rect::new(0, 0, 30, 1));
+
+        prompt.render(buffer.area, &mut buffer, &mut state);
+
+        let mut expected = Buffer::with_lines(vec!["? prompt › *****              "]);
+        expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
+        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
+        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
+        assert_buffer_eq!(buffer, expected);
+    }
+
+    #[test]
+    fn render_invisible() {
+        let prompt = TextPrompt::from("prompt").with_render_style(TextRenderStyle::Invisible);
+        let mut state = TextState::new().with_value("value");
+        let mut buffer = Buffer::empty(Rect::new(0, 0, 30, 1));
+
+        prompt.render(buffer.area, &mut buffer, &mut state);
+
+        let mut expected = Buffer::with_lines(vec!["? prompt ›                    "]);
+        expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
+        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
+        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
+        assert_buffer_eq!(buffer, expected);
+    }
+
+    #[test]
+    fn draw_no_wrap() -> Result<(), Box<dyn std::error::Error>> {
+        let prompt = TextPrompt::from("prompt");
+        let mut state = TextState::new().with_value("hello");
+        let backend = TestBackend::new(17, 2);
+        let mut terminal = Terminal::new(backend)?;
+
+        let mut expected = Buffer::with_lines(vec!["? prompt › hello ", "                 "]);
+        expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
+        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
+        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
+
+        // The cursor is not changed when the prompt is not focused.
+        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
+        assert_buffer_eq!(*frame.buffer, expected);
+        assert_eq!(state.render_height, 1);
+        assert_eq!(state.cursor(), (11, 0));
+        assert_eq!(terminal.backend_mut().get_cursor().unwrap(), (0, 0));
+
+        // The cursor is changed when the prompt is focused.
+        state.focus();
+        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
+        assert_buffer_eq!(*frame.buffer, expected);
+        assert_eq!(state.render_height, 1);
+        assert_eq!(state.cursor(), (11, 0));
+        assert_eq!(terminal.backend_mut().get_cursor().unwrap(), (11, 0));
+
+        // The cursor is changed when the prompt is focused and the position is changed.
+        *state.position_mut() = 3;
+        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
+        assert_buffer_eq!(*frame.buffer, expected);
+        assert_eq!(state.render_height, 1);
+        assert_eq!(state.cursor(), (14, 0));
+        assert_eq!(terminal.get_cursor()?, (14, 0));
+
+        // The cursor does not go beyond the end of the value.
+        *state.position_mut() = 100;
+        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
+        assert_buffer_eq!(*frame.buffer, expected);
+        assert_eq!(state.render_height, 1);
+        assert_eq!(state.cursor(), (16, 0));
+        assert_eq!(terminal.get_cursor()?, (16, 0));
+
+        Ok(())
+    }
+
+    #[test]
+    fn draw_wrapped() -> Result<(), Box<dyn std::error::Error>> {
+        let prompt = TextPrompt::from("prompt");
+        let mut state = TextState::new().with_value("hello world");
+        let backend = TestBackend::new(17, 2);
+        let mut terminal = Terminal::new(backend)?;
+
+        let mut expected = Buffer::with_lines(vec!["? prompt › hello ", "world            "]);
+        expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
+        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
+        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
+
+        // The cursor is not changed when the prompt is not focused.
+        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
+        assert_buffer_eq!(*frame.buffer, expected);
+        assert_eq!(state.cursor(), (11, 0));
+        assert_eq!(state.render_height, 2);
+        assert_eq!(terminal.get_cursor()?, (0, 0));
+
+        // The cursor is changed when the prompt is focused.
+        state.focus();
+        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
+        assert_buffer_eq!(*frame.buffer, expected);
+        assert_eq!(state.render_height, 2);
+        assert_eq!(state.cursor(), (11, 0));
+        assert_eq!(terminal.get_cursor()?, (11, 0));
+
+        // The cursor is changed when the prompt is focused and the position is changed.
+        *state.position_mut() = 3;
+        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
+        assert_buffer_eq!(*frame.buffer, expected);
+        assert_eq!(state.render_height, 2);
+        assert_eq!(state.cursor(), (14, 0));
+        assert_eq!(terminal.get_cursor()?, (14, 0));
+
+        // The cursor wraps to the first column of the next line
+        *state.position_mut() = 6;
+        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
+        assert_buffer_eq!(*frame.buffer, expected);
+        assert_eq!(state.render_height, 2);
+        assert_eq!(state.cursor(), (0, 1));
+        assert_eq!(terminal.get_cursor()?, (0, 1));
+
+        // The cursor continues to cover the second line
+        *state.position_mut() = 7;
+        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
+        assert_buffer_eq!(*frame.buffer, expected);
+        assert_eq!(state.render_height, 2);
+        assert_eq!(state.cursor(), (1, 1));
+        assert_eq!(terminal.get_cursor()?, (1, 1));
+
+        // The cursor does not go beyond the end of the value.
+        *state.position_mut() = 100;
+        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
+        assert_buffer_eq!(*frame.buffer, expected);
+        assert_eq!(state.render_height, 2);
+        assert_eq!(state.cursor(), (5, 1));
+        assert_eq!(terminal.get_cursor()?, (5, 1));
+
+        Ok(())
     }
 }
