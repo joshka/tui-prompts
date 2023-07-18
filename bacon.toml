@@ -58,6 +58,16 @@ allow_warnings = true
 command = ["vhs", "examples/text.tape"]
 need_stdout = true
 
+[jobs.coverage]
+command = [
+    "cargo",
+    "llvm-cov",
+    "--lcov","--output-path=target/lcov.info",
+    "--all-features",
+    "--", "--color", "always",
+]
+need_stdout = true
+
 # You may define here keybindings that would be specific to
 # a project, for example a shortcut to launch a specific job.
 # Shortcuts to internal functions (scrolling, toggling, etc.)
@@ -65,3 +75,4 @@ need_stdout = true
 [keybindings]
 # alt-m = "job:my-job"
 v = "job:vhs"
+o = "job:coverage"
