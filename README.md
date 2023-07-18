@@ -49,6 +49,37 @@ impl<'a> App<'a> {
 
 ![Text Prompt](https://vhs.charm.sh/vhs-4vLzNamR9bWxP04nTxdjdh.gif)
 
+## Features
+
+- [x] Text prompt
+- [x] Password prompt
+- [x] Invisible prompt
+- [x] Readline / emacs style Key Bindings
+- [x] Crossterm backend
+- [ ] Multi-line input
+- [ ] Scrolling
+- [ ] More prompt types:
+  - [ ] Number
+  - [ ] Confirm
+  - [ ] List
+  - [ ] Toggle
+  - [ ] Select
+  - [ ] Multi-select
+  - [ ] Autocomplete
+  - [ ] Autocomplete multi-select
+  - [ ] Date
+- [ ] Bracketed paste
+- [ ] Validation
+- [ ] Default initial value
+- [ ] Custom style
+- [ ] Themes
+- [ ] Custom formatting
+- [ ] Backend agnostic keyboard event handling ([Termion](https://crates.io/crates/termion) and
+[Termwiz](https://crates.io/crates/termwiz))
+- [ ] Customizable key bindings
+- [ ] Handle more advanced multi-key bindings e.g. `^[b` and `^[f` for start / end of line
+- [ ] Prompt chaining
+
 ## Installation
 
 ```shell
@@ -64,9 +95,20 @@ ratatui = "0.22.0"
 tui-prompts = "0.2.0"
 ```
 
-## Status
+## Key Bindings
 
-Very much a work in progress. The api is subject to change without any notice.
+| Key | Action
+| --- | ---
+| Home, Ctrl+A | Move cursor to beginning of line
+| End, Ctrl+E | Move cursor to end of line
+| Left, Ctrl+B | Move cursor one character left
+| Right, Ctrl+F | Move cursor one character right
+| Backspace (Delete on Mac), Ctrl+H | Delete character before cursor
+| Delete (Fn+Delete on Mac), Ctrl+D | Delete character at cursor
+| Ctrl+K | Delete all characters from the cursor to the end of line
+| Ctrl+U | Delete the entire line
+| Enter | Complete the prompt
+| Escape, Ctrl+C | Abort the prompt
 
 ## License
 
