@@ -6,7 +6,7 @@ use clap::Parser;
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyEvent, KeyModifiers};
 use ratatui::{prelude::*, widgets::*};
-use tui::Tui;
+use tui::{Frame, Tui};
 use tui_prompts::prelude::*;
 
 #[derive(Parser)]
@@ -22,7 +22,7 @@ fn main() -> Result<()> {
     Ok(())
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Hash)]
 struct App<'a> {
     debug: bool,
     current_field: Field,
@@ -31,21 +31,19 @@ struct App<'a> {
     invisible_state: TextState<'a>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash)]
 enum Field {
+    #[default]
     Username,
     Password,
     Invisible,
 }
 
 impl<'a> App<'a> {
-    const fn new(cli: Cli) -> Self {
+    pub fn new(cli: Cli) -> Self {
         Self {
             debug: cli.debug,
-            current_field: Field::Username,
-            username_state: TextState::new(),
-            password_state: TextState::new(),
-            invisible_state: TextState::new(),
+            ..Default::default()
         }
     }
 
@@ -57,13 +55,13 @@ impl<'a> App<'a> {
             tui.draw(|frame| self.draw_ui(frame))?;
         }
         tui.hide_cursor()?;
-        // wait a second before exiting so the user can see the final state of the UI.
-        sleep(Duration::from_secs(1));
+        // wait two seconds before exiting so the user can see the final state of the UI.
+        sleep(Duration::from_secs(2));
         Ok(())
     }
 
     fn handle_events(&mut self) -> Result<()> {
-        if event::poll(Duration::from_millis(100))? {
+        if event::poll(Duration::from_millis(16))? {
             if let Event::Key(key_event) = event::read()? {
                 self.handle_key_event(key_event);
             }
@@ -71,56 +69,74 @@ impl<'a> App<'a> {
         Ok(())
     }
 
-    fn draw_ui<B: Backend>(&mut self, frame: &mut Frame<B>) {
-        self.draw_app(frame);
-        self.draw_debug(frame);
+    fn draw_ui(&mut self, frame: &mut Frame) {
+        let (username_area, password_area, invisible_area, value_area, debug_area) =
+            self.split_layout(frame.size());
+        self.draw_text_prompt(frame, username_area);
+        self.draw_password_prompt(frame, password_area);
+        self.draw_invisible_prompt(frame, invisible_area);
+        self.draw_state_value(frame, value_area);
+        self.draw_debug(frame, debug_area);
     }
 
-    fn draw_app<B: Backend>(&mut self, frame: &mut Frame<B>) {
-        let area = Rect {
-            width: 30,
-            ..frame.size()
+    /// split the frame into 5 areas:
+    /// - username prompt
+    /// - password prompt
+    /// - invisible prompt
+    /// - state value
+    /// - debug area
+    /// The debug area is only visible if the `debug` flag is set.
+    fn split_layout(&self, area: Rect) -> (Rect, Rect, Rect, Rect, Rect) {
+        use Constraint::*;
+        let (prompt_area, debug_area) = if self.debug {
+            let areas = Layout::default()
+                .direction(Direction::Horizontal)
+                .constraints(vec![Min(1), Length(30)])
+                .split(area);
+            (areas[0], areas[1])
+        } else {
+            (area, area)
         };
-        TextPrompt::from("Username").draw(frame, area, &mut self.username_state);
+        let areas = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(vec![Length(1), Length(1), Length(1), Length(1)])
+            .split(prompt_area);
+        return (areas[0], areas[1], areas[2], areas[3], debug_area);
+    }
 
-        let area = Rect {
-            y: area.y + self.username_state.render_height as u16,
-            height: area.height - self.username_state.render_height as u16,
-            ..area
-        };
+    fn draw_text_prompt(&mut self, frame: &mut Frame, username_area: Rect) {
+        TextPrompt::from("Username").draw(frame, username_area, &mut self.username_state);
+    }
+
+    fn draw_password_prompt(&mut self, frame: &mut Frame, password_area: Rect) {
         TextPrompt::from("Password")
             .with_render_style(TextRenderStyle::Password)
-            .draw(frame, area, &mut self.password_state);
+            .draw(frame, password_area, &mut self.password_state);
+    }
 
-        let area = Rect {
-            y: area.y + self.password_state.render_height as u16,
-            height: area.height - self.password_state.render_height as u16,
-            ..area
-        };
+    fn draw_invisible_prompt(&mut self, frame: &mut Frame, invisible_area: Rect) {
         TextPrompt::from("Invisible")
             .with_render_style(TextRenderStyle::Invisible)
-            .draw(frame, area, &mut self.invisible_state);
+            .draw(frame, invisible_area, &mut self.invisible_state);
+    }
 
+    /// draw the value of the current state underneath the prompts.
+    fn draw_state_value(&mut self, frame: &mut Frame, value_area: Rect) {
         let state = self.current_state();
         let state = format!("  Value: {}", state.value());
-        let area = Rect {
-            y: area.y + self.invisible_state.render_height as u16,
-            height: frame.size().height - area.y - self.invisible_state.render_height as u16,
-            ..frame.size()
-        };
         frame.render_widget(
-            Paragraph::new(state).style(Style::new().fg(Color::DarkGray)),
-            area,
+            Paragraph::new(state).style(Style::new().dark_gray()),
+            value_area,
         );
     }
 
-    fn draw_debug<B: Backend>(&mut self, frame: &mut Frame<B>) {
+    /// draw a debug string in the top right corner of the screen that shows the current state of
+    /// the app.
+    fn draw_debug(&mut self, frame: &mut Frame, area: Rect) {
         if !self.debug {
             return;
         }
-        let state = self.current_state();
-        let debug = format!("{state:#?}");
-        let area = Rect::new(frame.size().width - 30, 0, 30, 20);
+        let debug = format!("{self:#?}");
         frame.render_widget(Paragraph::new(debug), area);
     }
 
@@ -132,29 +148,33 @@ impl<'a> App<'a> {
 
     fn handle_key_event(&mut self, key_event: KeyEvent) {
         match (key_event.code, key_event.modifiers) {
-            (event::KeyCode::Enter, _) => {
-                self.submit();
-            }
-            (event::KeyCode::Tab, KeyModifiers::NONE) => {
-                self.current_state().blur();
-                self.current_field = self.next_field();
-                self.current_state().focus();
-            }
-            (event::KeyCode::BackTab, KeyModifiers::SHIFT) => {
-                self.current_state().blur();
-                self.current_field = self.prev_field();
-                self.current_state().focus();
-            }
-            _ => {
-                let state = self.current_state();
-                state.handle_key_event(key_event);
-            }
+            (event::KeyCode::Enter, _) => self.submit(),
+            (event::KeyCode::Tab, KeyModifiers::NONE) => self.focus_next(),
+            (event::KeyCode::BackTab, KeyModifiers::SHIFT) => self.focus_prev(),
+            _ => self.focus_handle_event(key_event),
         }
+    }
+
+    fn focus_handle_event(&mut self, key_event: KeyEvent) {
+        let state = self.current_state();
+        state.handle_key_event(key_event);
+    }
+
+    fn focus_next(&mut self) {
+        self.current_state().blur();
+        self.current_field = self.next_field();
+        self.current_state().focus();
+    }
+
+    fn focus_prev(&mut self) {
+        self.current_state().blur();
+        self.current_field = self.prev_field();
+        self.current_state().focus();
     }
 
     fn submit(&mut self) {
         self.current_state().complete();
-        if self.current_state().is_finished() {
+        if self.current_state().is_finished() && !self.is_finished() {
             self.current_state().blur();
             self.current_field = self.next_field();
             self.current_state().focus();

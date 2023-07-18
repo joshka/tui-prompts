@@ -1,10 +1,10 @@
-![](https://user-images.githubusercontent.com/381361/252977280-49b9ff66-f78d-4e16-b5ed-29d771bfcab2.png)
+<h1><img src="https://user-images.githubusercontent.com/381361/252977280-49b9ff66-f78d-4e16-b5ed-29d771bfcab2.png"></h1>
 
 # tui-prompts
 
 [![Crates.io](https://img.shields.io/crates/v/tui-prompts?logo=rust&style=for-the-badge)](https://crates.io/crates/tui-prompts)
 [![License](https://img.shields.io/crates/l/tui-prompts?style=for-the-badge)](./LICENSE)
-[![Docs.rs](https://img.shields.io/docsrs/tui-prompts?logo=rust&style=for-the-badge)](https://docs.rs/crate/tui-prompts/)  
+[![Docs.rs](https://img.shields.io/docsrs/tui-prompts?logo=rust&style=for-the-badge)](https://docs.rs/crate/tui-prompts/)
 [![Dependency Status](https://deps.rs/repo/github/joshka/tui-prompts/status.svg?style=for-the-badge)](https://deps.rs/repo/github/joshka/tui-prompts)
 [![Codecov](https://img.shields.io/codecov/c/github/joshka/tui-prompts?logo=codecov&style=for-the-badge&token=BAQ8SOKEST)](https://app.codecov.io/gh/joshka/tui-prompts)
 [![Discord](https://img.shields.io/discord/1070692720437383208?label=ratatui+discord&logo=discord&style=for-the-badge)](https://discord.gg/pMCEU9hNEj)
@@ -13,42 +13,60 @@
 creation of interactive command-line interfaces with various types of prompts. Inspired by
 <https://www.npmjs.com/package/prompts> and various other prompt libraries.
 
-## Installation
-
-Add the following to your `Cargo.toml` file:
-
-```toml
-[dependencies]
-ratatui = "0.21.0"
-tui-prompts = "0.1.0"
-```
-
-## Status
-
-Very much a work in progress
-
 ## Examples
+
+### Text Prompt
+
+<details>
+<summary>Code</summary>
 
 ```rust
 struct App<'a> {
-    username: TextState<'a>,
-    password: TextState<'a>,
+    username_state: TextState<'a>,
+    password_state: TextState<'a>,
+    invisible_state: TextState<'a>,
 }
 
 impl<'a> App<'a> {
     fn draw_ui<B: Backend>(&mut self, frame: &mut Frame<B>) {
-        let area = Rect::new(0, 0, frame.size().width, 1);
-        TextPrompt::from("Username").draw(frame, area, &mut self.username);
+        let (username_area, password_area, invisible_area) = split_layout(frame.size())
 
-        let area = Rect::new(0, 1, frame.size().width, 1);
+        TextPrompt::from("Username")
+            .draw(frame, username_area, &mut self.username_state);
+
         TextPrompt::from("Password")
             .with_render_style(TextRenderStyle::Password)
-            .draw(frame, area, &mut self.password);
+            .draw(frame, password_area, &mut self.password_state);
+
+        TextPrompt::from("Invisible")
+            .with_render_style(TextRenderStyle::Invisible)
+            .draw(frame, invisible_area, &mut self.invisible_state);
     }
 }
 ```
 
-![Text Prompt](https://vhs.charm.sh/vhs-1o1m3o1jSCtdacuZwz326V.gif)
+</details>
+
+![Text Prompt](https://vhs.charm.sh/vhs-4vLzNamR9bWxP04nTxdjdh.gif)
+
+## Installation
+
+```shell
+cargo add ratatui
+cargo add tui-prompts
+```
+
+Or add the following to your `Cargo.toml` file:
+
+```toml
+[dependencies]
+ratatui = "0.22.0"
+tui-prompts = "0.2.0"
+```
+
+## Status
+
+Very much a work in progress. The api is subject to change without any notice.
 
 ## License
 

@@ -19,6 +19,12 @@ Type "ferris"
 Sleep 0.5s
 Enter
 Sleep 2s
+Type "wrong password"
+Sleep 0.5s
+Escape # simulate incorrect password
+Sleep 2s
+Ctrl+U # clear the line
+Sleep 0.5s
 Type "password"
 Sleep 0.5s
 Enter
