@@ -49,6 +49,16 @@ impl<'a> App<'a> {
 
 ![Text Prompt](https://vhs.charm.sh/vhs-4vLzNamR9bWxP04nTxdjdh.gif)
 
+See the [text example](./examples/text.rs) for more details.
+
+### Soft Wrapping
+
+Text is automatically character wrapped to fit in the render area.
+
+![Multi-line](https://vhs.charm.sh/vhs-x0CdxUz6IQiMFOsgDp6c4.gif)
+
+See the [multi line example](./examples/multi_line.rs) for more details.
+
 ## Features
 
 - [x] Text prompt

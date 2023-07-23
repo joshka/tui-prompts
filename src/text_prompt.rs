@@ -88,56 +88,92 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
         let width = area.width as usize;
         let height = area.height as usize;
         let value = self.render_style.render(state);
+        let value_length = value.len();
 
-        // The first line will have the parts that are static and the first part of the value that
-        // fits in the area.
-        let mut prompt_line = Line::from(vec![
+        let line = Line::from(vec![
             state.status.symbol(),
             " ".into(),
             self.message.bold(),
             " › ".cyan().dim(),
+            Span::raw(value),
         ]);
-        let prompt_length = prompt_line.width();
+        let prompt_length = line.width() - value_length;
+        let lines = wrap(line, width).take(height).collect_vec();
 
-        // Add the first line of the value to the first line of the prompt.
-        let first_line_length = width - prompt_length;
-        let first_line_value: Span = value
-            .chars()
-            .take(first_line_length)
-            .collect::<String>()
-            .into();
-        prompt_line.spans.push(first_line_value);
+        // constrain the position to the area
+        let position = (state.position() + prompt_length).min(area.area() as usize - 1);
+        let row = position / width;
+        let column = position % width;
+        state.cursor = (area.x + column as u16, area.y + row as u16);
 
-        // Each successive line will have the next part of the value that fits in the area, which
-        // is calculated by skipping the characters that were already rendered and then splitting
-        // the remaining characters into chunks that fit in the area. E.g. this will look like:
-        // ```text
-        // ? Enter your name › John Doe
-        // is my name and I am 99 years
-        // old.
-        // ```
-        let mut lines = value
-            .chars()
-            .skip(first_line_length)
-            .chunks(width)
-            .into_iter()
-            .map(|c| Line::from(c.collect::<String>()))
-            .take(height - 1)
-            .collect_vec();
-        lines.insert(0, prompt_line);
-
-        // calculate the cursor position
-        let position = u16_or(
-            usize::min(state.position, value.len()) + prompt_length,
-            u16::MAX,
-        );
-        let width = u16_or(width, 1);
-        // TODO constrain to area.
-        // TODO handle scrolling automatically.
-        state.cursor = (area.x + position % width, area.y + position / width);
         state.render_height = lines.len();
         Paragraph::new(lines).render(area, buf);
     }
+}
+
+/// wraps a line into multiple lines of the given width.
+///
+/// This is a character based wrap, not a word based wrap.
+///
+/// TODO: move this into the `Line` type.
+fn wrap<'a>(line: Line<'a>, width: usize) -> impl Iterator<Item = Line<'a>> + 'a {
+    let mut line = line;
+    std::iter::from_fn(move || {
+        if line.width() > width {
+            let (first, second) = line_split_at(line.clone(), width);
+            line = second;
+            Some(first)
+        } else if line.width() > 0 {
+            let first = line.clone();
+            line = Line::default();
+            Some(first)
+        } else {
+            None
+        }
+    })
+}
+
+/// splits a line into two lines at the given position.
+///
+/// TODO: move this into the `Line` type.
+/// TODO: fix this so that it operates on multi-width characters.
+fn line_split_at<'a>(line: Line<'a>, mid: usize) -> (Line<'a>, Line<'a>) {
+    let mut first = Line::default();
+    let mut second = Line::default();
+    first.alignment = line.alignment;
+    second.alignment = line.alignment;
+    for span in line.spans {
+        let first_width = first.width();
+        let span_width = span.width();
+        if first_width + span_width <= mid {
+            first.spans.push(span);
+        } else if first_width < mid && first_width + span_width > mid {
+            let span_mid = mid - first_width;
+            let (span_first, span_second) = span_split_at(span, span_mid);
+            first.spans.push(span_first);
+            second.spans.push(span_second);
+        } else {
+            second.spans.push(span);
+        }
+    }
+    (first, second)
+}
+
+/// splits a span into two spans at the given position.
+///
+/// TODO: move this into the `Span` type.
+/// TODO: fix this so that it operates on multi-width characters.
+fn span_split_at<'a>(span: Span<'a>, mid: usize) -> (Span<'a>, Span<'a>) {
+    let (first, second) = span.content.split_at(mid);
+    let first = Span {
+        content: Cow::Owned(first.into()),
+        style: span.style,
+    };
+    let second = Span {
+        content: Cow::Owned(second.into()),
+        style: span.style,
+    };
+    (first, second)
 }
 
 impl<'a> TextPrompt<'a> {
@@ -157,10 +193,6 @@ where
     fn from(message: T) -> Self {
         Self::new(message.into())
     }
-}
-
-fn u16_or(x: usize, default: u16) -> u16 {
-    x.try_into().unwrap_or(default)
 }
 
 #[cfg(test)]
