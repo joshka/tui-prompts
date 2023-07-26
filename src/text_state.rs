@@ -4,12 +4,11 @@ use crate::{prelude::*, State};
 
 #[derive(Debug, Default, Clone, PartialEq, Eq, Hash)]
 pub struct TextState<'a> {
-    pub status: Status,
-    pub focus: FocusState,
-    pub position: usize,
-    pub cursor: (u16, u16),
-    pub value: Cow<'a, str>,
-    pub render_height: usize,
+    status: Status,
+    focus: FocusState,
+    position: usize,
+    cursor: (u16, u16),
+    value: Cow<'a, str>,
 }
 
 impl<'a> TextState<'a> {
@@ -21,7 +20,6 @@ impl<'a> TextState<'a> {
             position: 0,
             cursor: (0, 0),
             value: Cow::Borrowed(""),
-            render_height: 1,
         }
     }
 

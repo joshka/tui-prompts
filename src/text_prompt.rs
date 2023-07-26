@@ -73,8 +73,8 @@ impl Prompt for TextPrompt<'_> {
     /// cursor position.
     fn draw<B: Backend>(self, frame: &mut Frame<B>, area: Rect, state: &mut Self::State) {
         frame.render_stateful_widget(self, area, state);
-        if state.focus == FocusState::Focused {
-            frame.set_cursor(state.cursor.0, state.cursor.1);
+        if state.is_focused() {
+            frame.set_cursor(state.cursor().0, state.cursor().1);
         }
     }
 }
@@ -91,7 +91,7 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
         let value_length = value.len();
 
         let line = Line::from(vec![
-            state.status.symbol(),
+            state.status().symbol(),
             " ".into(),
             self.message.bold(),
             " › ".cyan().dim(),
@@ -104,9 +104,7 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
         let position = (state.position() + prompt_length).min(area.area() as usize - 1);
         let row = position / width;
         let column = position % width;
-        state.cursor = (area.x + column as u16, area.y + row as u16);
-
-        state.render_height = lines.len();
+        *state.cursor_mut() = (area.x + column as u16, area.y + row as u16);
         Paragraph::new(lines).render(area, buf);
     }
 }
@@ -353,7 +351,6 @@ mod tests {
         // The cursor is not changed when the prompt is not focused.
         let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
         assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.render_height, 1);
         assert_eq!(state.cursor(), (11, 0));
         assert_eq!(terminal.backend_mut().get_cursor().unwrap(), (0, 0));
 
@@ -361,7 +358,6 @@ mod tests {
         state.focus();
         let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
         assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.render_height, 1);
         assert_eq!(state.cursor(), (11, 0));
         assert_eq!(terminal.backend_mut().get_cursor().unwrap(), (11, 0));
 
@@ -369,7 +365,6 @@ mod tests {
         *state.position_mut() = 3;
         let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
         assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.render_height, 1);
         assert_eq!(state.cursor(), (14, 0));
         assert_eq!(terminal.get_cursor()?, (14, 0));
 
@@ -377,7 +372,6 @@ mod tests {
         *state.position_mut() = 100;
         let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
         assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.render_height, 1);
         assert_eq!(state.cursor(), (16, 0));
         assert_eq!(terminal.get_cursor()?, (16, 0));
 
@@ -400,14 +394,12 @@ mod tests {
         let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
         assert_buffer_eq!(*frame.buffer, expected);
         assert_eq!(state.cursor(), (11, 0));
-        assert_eq!(state.render_height, 2);
         assert_eq!(terminal.get_cursor()?, (0, 0));
 
         // The cursor is changed when the prompt is focused.
         state.focus();
         let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
         assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.render_height, 2);
         assert_eq!(state.cursor(), (11, 0));
         assert_eq!(terminal.get_cursor()?, (11, 0));
 
@@ -415,7 +407,6 @@ mod tests {
         *state.position_mut() = 3;
         let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
         assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.render_height, 2);
         assert_eq!(state.cursor(), (14, 0));
         assert_eq!(terminal.get_cursor()?, (14, 0));
 
@@ -423,7 +414,6 @@ mod tests {
         *state.position_mut() = 6;
         let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
         assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.render_height, 2);
         assert_eq!(state.cursor(), (0, 1));
         assert_eq!(terminal.get_cursor()?, (0, 1));
 
@@ -431,7 +421,6 @@ mod tests {
         *state.position_mut() = 7;
         let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
         assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.render_height, 2);
         assert_eq!(state.cursor(), (1, 1));
         assert_eq!(terminal.get_cursor()?, (1, 1));
 
@@ -439,7 +428,6 @@ mod tests {
         *state.position_mut() = 100;
         let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
         assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.render_height, 2);
         assert_eq!(state.cursor(), (5, 1));
         assert_eq!(terminal.get_cursor()?, (5, 1));
 
