@@ -87,11 +87,10 @@ impl<'a> App<'a> {
     /// - debug area
     /// The debug area is only visible if the `debug` flag is set.
     fn split_layout(&self, area: Rect) -> (Rect, Rect, Rect, Rect, Rect) {
-        use Constraint::*;
         let (prompt_area, debug_area) = if self.debug {
             let areas = Layout::default()
                 .direction(Direction::Horizontal)
-                .constraints(vec![Min(1), Length(30)])
+                .constraints(vec![Constraint::Ratio(1, 2); 2])
                 .split(area);
             (areas[0], areas[1])
         } else {
@@ -99,7 +98,7 @@ impl<'a> App<'a> {
         };
         let areas = Layout::default()
             .direction(Direction::Vertical)
-            .constraints(vec![Length(1), Length(1), Length(1), Length(1)])
+            .constraints(vec![Constraint::Length(1); 4])
             .split(prompt_area);
         (areas[0], areas[1], areas[2], areas[3], debug_area)
     }
@@ -137,7 +136,12 @@ impl<'a> App<'a> {
             return;
         }
         let debug = format!("{self:#?}");
-        frame.render_widget(Paragraph::new(debug), area);
+        frame.render_widget(
+            Paragraph::new(debug)
+                .wrap(Wrap { trim: false })
+                .block(Block::new().borders(Borders::LEFT)),
+            area,
+        );
     }
 
     fn is_finished(&self) -> bool {

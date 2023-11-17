@@ -47,7 +47,7 @@ impl<'a> App<'a> {
 
 </details>
 
-![Text Prompt](https://vhs.charm.sh/vhs-4vLzNamR9bWxP04nTxdjdh.gif)
+![Text Prompt](https://vhs.charm.sh/vhs-7gLcGtWJWDlQZqcMlhrpRG.gif)
 
 See the [text example](./examples/text.rs) for more details.
 
@@ -55,7 +55,7 @@ See the [text example](./examples/text.rs) for more details.
 
 Text is automatically character wrapped to fit in the render area.
 
-![Multi-line](https://vhs.charm.sh/vhs-x0CdxUz6IQiMFOsgDp6c4.gif)
+![Multi-line](https://vhs.charm.sh/vhs-5zzgSyRXy6IjBahoe1esDi.gif)
 
 See the [multi line example](./examples/multi_line.rs) for more details.
 
@@ -94,17 +94,10 @@ See the [multi line example](./examples/multi_line.rs) for more details.
 ## Installation
 
 ```shell
-cargo add ratatui
-cargo add tui-prompts
+cargo add ratatui tui-prompts crossterm
 ```
 
 Or add the following to your `Cargo.toml` file:
-
-```toml
-[dependencies]
-ratatui = "0.22.0"
-tui-prompts = "0.2.0"
-```
 
 ## Key Bindings
 

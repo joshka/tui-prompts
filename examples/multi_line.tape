@@ -4,11 +4,12 @@
 
 Output "target/multi_line.gif"
 
-Set Height 240
-Set Width 600
+Set Theme "Aardvark Blue"
+Set Width 1200
+Set Height 600
 
 Hide
-Type "cargo -q run --example=multi_line"
+Type "cargo -q run --example=multi_line -- --debug"
 Enter
 Sleep 2s
 Show

@@ -4,13 +4,12 @@
 
 Output "target/text.gif"
 
-Set Height 240
-Set Width 600
+Set Theme "Aardvark Blue"
+Set Width 1200
+Set Height 1080
 
 Hide
-Type "cargo build --example=text"
-Enter
-Type "cargo -q run --example=text"
+Type "cargo -q run --example=text -- --debug"
 Enter
 Sleep 0.5s
 Show

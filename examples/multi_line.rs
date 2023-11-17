@@ -78,17 +78,21 @@ impl<'a> App<'a> {
         if self.debug {
             let areas = Layout::default()
                 .direction(Direction::Horizontal)
-                .constraints(vec![Constraint::Min(1), Constraint::Length(30)])
+                .constraints(vec![Constraint::Ratio(1, 2); 2])
                 .split(area);
-            (areas[0], areas[1])
+            let textbox_area = Rect {
+                height: 4, // 3 lines of text + 1 line of border
+                ..areas[0]
+            };
+            (textbox_area, areas[1])
         } else {
-            (area, area)
+            (area, Rect::default())
         }
     }
 
     fn draw_text_prompt(&mut self, frame: &mut Frame, area: Rect) {
         TextPrompt::from("Multi-line")
-            .with_block(Block::new().borders(Borders::RIGHT))
+            .with_block(Block::new().borders(Borders::RIGHT | Borders::BOTTOM))
             .draw(frame, area, &mut self.state);
     }
 
@@ -99,7 +103,7 @@ impl<'a> App<'a> {
             return;
         }
         let debug = format!("{self:#?}");
-        frame.render_widget(Paragraph::new(debug), area);
+        frame.render_widget(Paragraph::new(debug).wrap(Wrap { trim: false }), area);
     }
 
     fn is_finished(&self) -> bool {
