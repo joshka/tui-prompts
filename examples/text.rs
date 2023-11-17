@@ -6,7 +6,7 @@ use clap::Parser;
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyEvent, KeyModifiers};
 use ratatui::{prelude::*, widgets::*};
-use tui::{Frame, Tui};
+use tui::Tui;
 use tui_prompts::prelude::*;
 
 #[derive(Parser)]
@@ -101,7 +101,7 @@ impl<'a> App<'a> {
             .direction(Direction::Vertical)
             .constraints(vec![Length(1), Length(1), Length(1), Length(1)])
             .split(prompt_area);
-        return (areas[0], areas[1], areas[2], areas[3], debug_area);
+        (areas[0], areas[1], areas[2], areas[3], debug_area)
     }
 
     fn draw_text_prompt(&mut self, frame: &mut Frame, username_area: Rect) {

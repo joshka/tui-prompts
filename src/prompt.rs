@@ -1,6 +1,6 @@
 use crate::Status;
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
-use ratatui::{prelude::*, widgets::*};
+use ratatui::{prelude::*, widgets::StatefulWidget};
 
 /// A prompt that can be drawn to a terminal.
 pub trait Prompt: StatefulWidget {
@@ -11,7 +11,7 @@ pub trait Prompt: StatefulWidget {
     ///
     /// [`StatefulWidget`]: ratatui::widgets::StatefulWidget
     /// [`Frame`]: ratatui::Frame
-    fn draw<B: Backend>(self, frame: &mut Frame<B>, area: Rect, state: &mut Self::State);
+    fn draw(self, frame: &mut Frame, area: Rect, state: &mut Self::State);
 }
 
 /// The focus state of a prompt.
@@ -99,9 +99,7 @@ pub trait State {
             (KeyCode::Delete, _) | (KeyCode::Char('d'), KeyModifiers::CONTROL) => self.delete(),
             (KeyCode::Char('k'), KeyModifiers::CONTROL) => self.kill(),
             (KeyCode::Char('u'), KeyModifiers::CONTROL) => self.truncate(),
-            (KeyCode::Char(c), KeyModifiers::NONE) | (KeyCode::Char(c), KeyModifiers::SHIFT) => {
-                self.push(c)
-            }
+            (KeyCode::Char(c), KeyModifiers::NONE | KeyModifiers::SHIFT) => self.push(c),
             _ => {}
         }
     }

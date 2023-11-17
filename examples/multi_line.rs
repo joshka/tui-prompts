@@ -6,7 +6,7 @@ use clap::Parser;
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyEvent};
 use ratatui::{prelude::*, widgets::*};
-use tui::{Frame, Tui};
+use tui::Tui;
 use tui_prompts::prelude::*;
 
 #[derive(Parser)]
@@ -107,8 +107,6 @@ impl<'a> App<'a> {
     }
 
     fn handle_key_event(&mut self, key_event: KeyEvent) {
-        match (key_event.code, key_event.modifiers) {
-            _ => self.state.handle_key_event(key_event),
-        }
+        self.state.handle_key_event(key_event);
     }
 }

@@ -11,9 +11,6 @@ pub struct Tui {
     terminal: Terminal<CrosstermBackend<Stderr>>,
 }
 
-/// A new type alias for a ratatui frame to avoid having to specify the backend type.
-pub type Frame<'a> = ratatui::Frame<'a, CrosstermBackend<Stderr>>;
-
 impl Tui {
     pub fn new() -> Result<Self> {
         let terminal = Self::init()?;

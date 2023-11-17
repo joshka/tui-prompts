@@ -11,17 +11,17 @@ pub enum Status {
 
 impl Status {
     #[must_use]
-    pub fn is_pending(&self) -> bool {
+    pub const fn is_pending(&self) -> bool {
         matches!(self, Self::Pending)
     }
 
     #[must_use]
-    pub fn is_aborted(&self) -> bool {
+    pub const fn is_aborted(&self) -> bool {
         matches!(self, Self::Aborted)
     }
 
     #[must_use]
-    pub fn is_done(&self) -> bool {
+    pub const fn is_done(&self) -> bool {
         matches!(self, Self::Done)
     }
 

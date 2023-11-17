@@ -3,7 +3,10 @@ use std::{borrow::Cow, vec};
 use crate::prelude::*;
 
 use itertools::Itertools;
-use ratatui::{prelude::*, widgets::*};
+use ratatui::{
+    prelude::*,
+    widgets::{Block, Paragraph, StatefulWidget, Widget},
+};
 
 // TODO style the widget
 // TODO style each element of the widget.
@@ -71,7 +74,7 @@ impl Prompt for TextPrompt<'_> {
     ///
     /// This is in addition to the `Widget` trait implementation as we need the `Frame` to set the
     /// cursor position.
-    fn draw<B: Backend>(self, frame: &mut Frame<B>, area: Rect, state: &mut Self::State) {
+    fn draw(self, frame: &mut Frame, area: Rect, state: &mut Self::State) {
         frame.render_stateful_widget(self, area, state);
         if state.is_focused() {
             frame.set_cursor(state.cursor().0, state.cursor().1);
@@ -104,7 +107,11 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
         let position = (state.position() + prompt_length).min(area.area() as usize - 1);
         let row = position / width;
         let column = position % width;
-        *state.cursor_mut() = (area.x + column as u16, area.y + row as u16);
+        // sizes are already constrained to the u16 range
+        #[allow(clippy::cast_possible_truncation)]
+        {
+            *state.cursor_mut() = (area.x + column as u16, area.y + row as u16);
+        }
         Paragraph::new(lines).render(area, buf);
     }
 }
@@ -114,7 +121,7 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
 /// This is a character based wrap, not a word based wrap.
 ///
 /// TODO: move this into the `Line` type.
-fn wrap<'a>(line: Line<'a>, width: usize) -> impl Iterator<Item = Line<'a>> + 'a {
+fn wrap(line: Line, width: usize) -> impl Iterator<Item = Line> {
     let mut line = line;
     std::iter::from_fn(move || {
         if line.width() > width {
@@ -135,7 +142,7 @@ fn wrap<'a>(line: Line<'a>, width: usize) -> impl Iterator<Item = Line<'a>> + 'a
 ///
 /// TODO: move this into the `Line` type.
 /// TODO: fix this so that it operates on multi-width characters.
-fn line_split_at<'a>(line: Line<'a>, mid: usize) -> (Line<'a>, Line<'a>) {
+fn line_split_at(line: Line, mid: usize) -> (Line, Line) {
     let mut first = Line::default();
     let mut second = Line::default();
     first.alignment = line.alignment;
@@ -161,7 +168,8 @@ fn line_split_at<'a>(line: Line<'a>, mid: usize) -> (Line<'a>, Line<'a>) {
 ///
 /// TODO: move this into the `Span` type.
 /// TODO: fix this so that it operates on multi-width characters.
-fn span_split_at<'a>(span: Span<'a>, mid: usize) -> (Span<'a>, Span<'a>) {
+#[allow(clippy::needless_pass_by_value)]
+fn span_split_at(span: Span, mid: usize) -> (Span, Span) {
     let (first, second) = span.content.split_at(mid);
     let first = Span {
         content: Cow::Owned(first.into()),
@@ -379,6 +387,7 @@ mod tests {
     }
 
     #[test]
+    #[allow(clippy::cognitive_complexity)]
     fn draw_wrapped() -> Result<(), Box<dyn std::error::Error>> {
         let prompt = TextPrompt::from("prompt");
         let mut state = TextState::new().with_value("hello world");
