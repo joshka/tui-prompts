@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.6](https://github.com/joshka/tui-prompts/compare/v0.3.5...v0.3.6) - 2024-03-12
+
+### Other
+- *(deps)* bump clap from 4.5.0 to 4.5.2 ([#23](https://github.com/joshka/tui-prompts/pull/23))
+- use release-plz from reusable workflows ([#27](https://github.com/joshka/tui-prompts/pull/27))
+- add test.yml workflow ([#26](https://github.com/joshka/tui-prompts/pull/26))
+- add check.yml workflow ([#24](https://github.com/joshka/tui-prompts/pull/24))
+
 ## [0.3.5](https://github.com/joshka/tui-prompts/compare/v0.3.4...v0.3.5) - 2024-02-13
 
 ### Other
