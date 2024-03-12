@@ -1,7 +1,3 @@
-name: Release-plz
-# see https://marcoieni.github.io/release-plz/github/index.html#example-release-pr-and-release
-# for more information
-
 permissions:
   pull-requests: write
   contents: write
@@ -13,17 +9,9 @@ on:
 
 jobs:
   release-plz:
-    name: Release-plz
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-      - name: Run release-plz
-        uses: MarcoIeni/release-plz-action@v0.5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+    uses: joshka/github-workflows/.github/workflows/rust-release-plz.yml@main
+    permissions:
+      pull-requests: write
+      contents: write
+    secrets:
+      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
