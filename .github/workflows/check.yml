@@ -1,5 +1,3 @@
-name: ""
-
 on:
   push:
     branches:
@@ -8,7 +6,6 @@ on:
 
 jobs:
   check:
-    name: ""
     permissions:
       checks: write
     uses: joshka/github-workflows/.github/workflows/rust-check.yml@main
