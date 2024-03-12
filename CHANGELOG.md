@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.7](https://github.com/joshka/tui-prompts/compare/v0.3.6...v0.3.7) - 2024-03-12
+
+### Other
+- allow release-plz workflow to be manually run ([#30](https://github.com/joshka/tui-prompts/pull/30))
+
 ## [0.3.6](https://github.com/joshka/tui-prompts/compare/v0.3.5...v0.3.6) - 2024-03-12
 
 ### Other
