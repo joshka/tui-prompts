@@ -18,7 +18,7 @@ ratatui = "0.26.1"
 
 [dev-dependencies]
 clap = { version = "4.5.4", features = ["derive"] }
-color-eyre = "0.6.2"
+color-eyre = "0.6.3"
 indoc = "2.0.5"
 
 [patch.crates-io]
