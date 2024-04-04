@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.10](https://github.com/joshka/tui-prompts/compare/v0.3.9...v0.3.10) - 2024-04-04
+
+### Fixed
+- Fix prompt for multi-byte characters. ([#41](https://github.com/joshka/tui-prompts/pull/41))
+- mark broken tests with FIXME ([#42](https://github.com/joshka/tui-prompts/pull/42))
+
 ## [0.3.9](https://github.com/joshka/tui-prompts/compare/v0.3.8...v0.3.9) - 2024-04-01
 
 ### Other
