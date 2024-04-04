@@ -90,4 +90,28 @@ impl State for TextState<'_> {
 }
 
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use crate::{State, TextState};
+
+    #[test]
+    fn insert_multibyte_start() {
+        let mut test = TextState::new().with_value("ää");
+        test.move_start();
+        test.push('Ö');
+        assert_eq!(test.value(), "Öää");
+    }
+    #[test]
+    fn insert_multibyte_middle() {
+        let mut test = TextState::new().with_value("ää");
+        test.move_right();
+        test.push('Ö');
+        assert_eq!(test.value(), "äÖä");
+    }
+    #[test]
+    fn insert_multibyte_end() {
+        let mut test = TextState::new().with_value("ää");
+        test.move_end();
+        test.push('Ö');
+        assert_eq!(test.value(), "ääÖ");
+    }
+}

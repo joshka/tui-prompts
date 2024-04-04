@@ -38,7 +38,7 @@ impl TextRenderStyle {
     pub fn render(&self, state: &TextState) -> String {
         match self {
             Self::Default => state.value().to_string(),
-            Self::Password => "*".repeat(state.value().len()),
+            Self::Password => "*".repeat(state.len()),
             Self::Invisible => String::new(),
         }
     }
@@ -91,7 +91,7 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
         let width = area.width as usize;
         let height = area.height as usize;
         let value = self.render_style.render(state);
-        let value_length = value.len();
+        let value_length = value.chars().count();
 
         let line = Line::from(vec![
             state.status().symbol(),
@@ -100,7 +100,7 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
             " › ".cyan().dim(),
             Span::raw(value),
         ]);
-        let prompt_length = line.width() - value_length;
+        let prompt_length = line.to_string().chars().count() - value_length;
         let lines = wrap(line, width).take(height).collect_vec();
 
         // constrain the position to the area

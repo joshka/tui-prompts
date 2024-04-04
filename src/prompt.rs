@@ -1,5 +1,8 @@
+use std::iter::once;
+
 use crate::Status;
 use crossterm::event::{KeyCode, KeyEvent, KeyEventKind, KeyModifiers};
+use itertools::chain;
 use ratatui::{prelude::*, widgets::StatefulWidget};
 
 /// A prompt that can be drawn to a terminal.
@@ -81,6 +84,14 @@ pub trait State {
     /// A mutable reference to the value of the prompt.
     fn value_mut(&mut self) -> &mut String;
 
+    fn len(&self) -> usize {
+        self.value().chars().count()
+    }
+
+    fn is_empty(&self) -> bool {
+        self.value().len() == 0
+    }
+
     fn handle_key_event(&mut self, key_event: KeyEvent) {
         if key_event.kind == KeyEventKind::Release {
             return;
@@ -114,7 +125,7 @@ pub trait State {
 
     fn delete(&mut self) {
         let position = self.position();
-        if position == self.value().len() {
+        if position == self.len() {
             return;
         }
         self.value_mut().remove(position);
@@ -122,7 +133,7 @@ pub trait State {
 
     fn backspace(&mut self) {
         let position = self.position().saturating_sub(1);
-        if position == self.value().len() {
+        if position == self.len() {
             return;
         }
         *self.position_mut() = position;
@@ -130,7 +141,7 @@ pub trait State {
     }
 
     fn move_right(&mut self) {
-        if self.position() == self.value().len() {
+        if self.position() == self.len() {
             return;
         }
         *self.position_mut() = self.position().saturating_add(1);
@@ -141,7 +152,7 @@ pub trait State {
     }
 
     fn move_end(&mut self) {
-        *self.position_mut() = self.value().len();
+        *self.position_mut() = self.len();
     }
 
     fn move_start(&mut self) {
@@ -159,8 +170,19 @@ pub trait State {
     }
 
     fn push(&mut self, c: char) {
-        let position = self.position();
-        self.value_mut().insert(position, c);
+        if self.position() == self.len() {
+            self.value_mut().push(c);
+        } else {
+            // We cannot use String::insert() as it operates on bytes, which can lead to incorrect modifications with
+            // multibyte characters. Instead, we handle text manipulation at the character level using Rust's char type
+            // for Unicode correctness. Check docs of String::insert() and String::chars() for futher info.
+            *self.value_mut() = chain![
+                self.value().chars().take(self.position()),
+                once(c),
+                self.value().chars().skip(self.position())
+            ]
+            .collect();
+        }
         *self.position_mut() = self.position().saturating_add(1);
     }
 }
