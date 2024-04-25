@@ -672,7 +672,7 @@ dependencies = [
 
 [[package]]
 name = "tui-prompts"
-version = "0.3.10"
+version = "0.3.11"
 dependencies = [
  "clap",
  "color-eyre",
