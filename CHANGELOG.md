@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.12](https://github.com/joshka/tui-prompts/compare/v0.3.11...v0.3.12) - 2024-05-11
+
+### Fixed
+- *(text_prompt)* use unicode-width instead of char cnt ([#46](https://github.com/joshka/tui-prompts/pull/46))
+
+### Other
+- *(text_prompt)* avoid unnecessary clones ([#48](https://github.com/joshka/tui-prompts/pull/48))
+
 ## [0.3.11](https://github.com/joshka/tui-prompts/compare/v0.3.10...v0.3.11) - 2024-04-25
 
 ### Other
