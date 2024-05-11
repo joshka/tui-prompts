@@ -7,6 +7,7 @@ use ratatui::{
     prelude::*,
     widgets::{Block, Paragraph, StatefulWidget, Widget},
 };
+use unicode_width::UnicodeWidthStr;
 
 // TODO style the widget
 // TODO style each element of the widget.
@@ -100,7 +101,7 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
             " › ".cyan().dim(),
             Span::raw(value),
         ]);
-        let prompt_length = line.to_string().chars().count() - value_length;
+        let prompt_length = line.to_string().width() - value_length;
         let lines = wrap(line, width).take(height).collect_vec();
 
         // constrain the position to the area
@@ -247,6 +248,23 @@ mod tests {
         expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
         expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
         assert_buffer_eq!(buffer, expected);
+        assert_eq!(state.cursor(), (11, 0));
+    }
+
+    #[test]
+    fn render_emoji() {
+        let prompt = TextPrompt::from("🔍");
+        let mut state = TextState::new();
+        let mut buffer = Buffer::empty(Rect::new(0, 0, 11, 1));
+
+        prompt.render(buffer.area, &mut buffer, &mut state);
+
+        let mut expected = Buffer::with_lines(vec!["? 🔍 ›     "]);
+        expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
+        expected.set_style(Rect::new(2, 0, 1, 1), Style::new().bold());
+        expected.set_style(Rect::new(4, 0, 3, 1), Style::new().cyan().dim());
+        assert_buffer_eq!(buffer, expected);
+        assert_eq!(state.cursor(), (7, 0));
     }
 
     #[test]
