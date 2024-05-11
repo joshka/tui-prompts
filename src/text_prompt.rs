@@ -7,7 +7,6 @@ use ratatui::{
     prelude::*,
     widgets::{Block, Paragraph, StatefulWidget, Widget},
 };
-use unicode_width::UnicodeWidthStr;
 
 // TODO style the widget
 // TODO style each element of the widget.
@@ -101,7 +100,7 @@ impl<'a> StatefulWidget for TextPrompt<'a> {
             " › ".cyan().dim(),
             Span::raw(value),
         ]);
-        let prompt_length = line.to_string().width() - value_length;
+        let prompt_length = line.width() - value_length;
         let lines = wrap(line, width).take(height).collect_vec();
 
         // constrain the position to the area
