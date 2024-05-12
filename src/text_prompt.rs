@@ -204,14 +204,11 @@ where
 #[cfg(test)]
 mod tests {
     use crate::Status;
+    use ratatui_macros::line;
+    use rstest::{fixture, rstest};
 
     use super::*;
     use ratatui::{assert_buffer_eq, backend::TestBackend, widgets::Borders};
-
-    // TODO make these configurable
-    const PENDING_STYLE: Style = Style::new().fg(Color::Cyan);
-    const COMPLETE_STYLE: Style = Style::new().fg(Color::Green);
-    const ABORTED_STYLE: Style = Style::new().fg(Color::Red);
 
     #[test]
     fn new() {
@@ -234,6 +231,7 @@ mod tests {
         let prompt = TextPrompt::from("Enter your name");
         assert_eq!(prompt.message, "Enter your name");
     }
+
     #[test]
     fn render() {
         let prompt = TextPrompt::from("prompt");
@@ -242,11 +240,8 @@ mod tests {
 
         prompt.render(buffer.area, &mut buffer, &mut state);
 
-        let mut expected = Buffer::with_lines(vec!["? prompt ›     "]);
-        expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
-        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
-        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
-        assert_buffer_eq!(buffer, expected);
+        let line = line!["?".cyan(), " ", "prompt".bold(), " › ".cyan().dim(), "    ",];
+        assert_buffer_eq!(buffer, Buffer::with_lines([line]));
         assert_eq!(state.cursor(), (11, 0));
     }
 
@@ -258,11 +253,8 @@ mod tests {
 
         prompt.render(buffer.area, &mut buffer, &mut state);
 
-        let mut expected = Buffer::with_lines(vec!["? 🔍 ›     "]);
-        expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
-        expected.set_style(Rect::new(2, 0, 1, 1), Style::new().bold());
-        expected.set_style(Rect::new(4, 0, 3, 1), Style::new().cyan().dim());
-        assert_buffer_eq!(buffer, expected);
+        let line = line!["?".cyan(), " ", "🔍".bold(), " › ".cyan().dim(), "    "];
+        assert_buffer_eq!(buffer, Buffer::with_lines([line]));
         assert_eq!(state.cursor(), (7, 0));
     }
 
@@ -274,11 +266,14 @@ mod tests {
 
         prompt.render(buffer.area, &mut buffer, &mut state);
 
-        let mut expected = Buffer::with_lines(vec!["✔ prompt ›     "]);
-        expected.set_style(Rect::new(0, 0, 1, 1), COMPLETE_STYLE);
-        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
-        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
-        assert_buffer_eq!(buffer, expected);
+        let line = line![
+            "✔".green(),
+            " ",
+            "prompt".bold(),
+            " › ".cyan().dim(),
+            "    "
+        ];
+        assert_buffer_eq!(buffer, Buffer::with_lines([line]));
     }
 
     #[test]
@@ -289,11 +284,8 @@ mod tests {
 
         prompt.render(buffer.area, &mut buffer, &mut state);
 
-        let mut expected = Buffer::with_lines(vec!["✘ prompt ›     "]);
-        expected.set_style(Rect::new(0, 0, 1, 1), ABORTED_STYLE);
-        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
-        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
-        assert_buffer_eq!(buffer, expected);
+        let line = line!["✘".red(), " ", "prompt".bold(), " › ".cyan().dim(), "    "];
+        assert_buffer_eq!(buffer, Buffer::with_lines([line]));
     }
 
     #[test]
@@ -304,11 +296,14 @@ mod tests {
 
         prompt.render(buffer.area, &mut buffer, &mut state);
 
-        let mut expected = Buffer::with_lines(vec!["? prompt › value              "]);
-        expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
-        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
-        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
-        assert_buffer_eq!(buffer, expected);
+        let line = line![
+            "?".cyan(),
+            " ",
+            "prompt".bold(),
+            " › ".cyan().dim(),
+            "value              ".to_string()
+        ];
+        assert_buffer_eq!(buffer, Buffer::with_lines([line]));
     }
 
     #[test]
@@ -325,9 +320,9 @@ mod tests {
             "│? prompt ›   │",
             "└─────────────┘",
         ]);
-        expected.set_style(Rect::new(1, 1, 1, 1), PENDING_STYLE);
-        expected.set_style(Rect::new(3, 1, 6, 1), Style::new().bold());
-        expected.set_style(Rect::new(9, 1, 3, 1), Style::new().cyan().dim());
+        expected.set_style(Rect::new(1, 1, 1, 1), Color::Cyan);
+        expected.set_style(Rect::new(3, 1, 6, 1), Modifier::BOLD);
+        expected.set_style(Rect::new(9, 1, 3, 1), (Color::Cyan, Modifier::DIM));
         assert_buffer_eq!(buffer, expected);
     }
 
@@ -339,11 +334,14 @@ mod tests {
 
         prompt.render(buffer.area, &mut buffer, &mut state);
 
-        let mut expected = Buffer::with_lines(vec!["? prompt › *****              "]);
-        expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
-        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
-        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
-        assert_buffer_eq!(buffer, expected);
+        let line = line![
+            "?".cyan(),
+            " ",
+            "prompt".bold(),
+            " › ".cyan().dim(),
+            "*****              ".to_string()
+        ];
+        assert_buffer_eq!(buffer, Buffer::with_lines([line]));
     }
 
     #[test]
@@ -354,110 +352,106 @@ mod tests {
 
         prompt.render(buffer.area, &mut buffer, &mut state);
 
-        let mut expected = Buffer::with_lines(vec!["? prompt ›                    "]);
-        expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
-        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
-        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
-        assert_buffer_eq!(buffer, expected);
+        let line = line![
+            "?".cyan(),
+            " ",
+            "prompt".bold(),
+            " › ".cyan().dim(),
+            "                   ".to_string()
+        ];
+        assert_buffer_eq!(buffer, Buffer::with_lines([line]));
     }
 
-    #[test]
-    fn draw_no_wrap() -> Result<(), Box<dyn std::error::Error>> {
+    #[fixture]
+    fn terminal() -> Terminal<TestBackend> {
+        Terminal::new(TestBackend::new(17, 2)).unwrap()
+    }
+
+    type Result<T> = std::result::Result<T, Box<dyn std::error::Error>>;
+
+    #[rstest]
+    fn draw_not_focused<'a>(mut terminal: Terminal<impl Backend>) -> Result<()> {
         let prompt = TextPrompt::from("prompt");
         let mut state = TextState::new().with_value("hello");
-        let backend = TestBackend::new(17, 2);
-        let mut terminal = Terminal::new(backend)?;
-
-        let mut expected = Buffer::with_lines(vec!["? prompt › hello ", "                 "]);
-        expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
-        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
-        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
-
         // The cursor is not changed when the prompt is not focused.
-        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
-        assert_buffer_eq!(*frame.buffer, expected);
+        let _ = terminal.draw(|frame| prompt.draw(frame, frame.size(), &mut state))?;
         assert_eq!(state.cursor(), (11, 0));
         assert_eq!(terminal.backend_mut().get_cursor().unwrap(), (0, 0));
+        Ok(())
+    }
 
+    #[rstest]
+    fn draw_focused<'a>(mut terminal: Terminal<impl Backend>) -> Result<()> {
+        let prompt = TextPrompt::from("prompt");
+        let mut state = TextState::new().with_value("hello");
         // The cursor is changed when the prompt is focused.
         state.focus();
-        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
-        assert_buffer_eq!(*frame.buffer, expected);
+        let _ = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
         assert_eq!(state.cursor(), (11, 0));
         assert_eq!(terminal.backend_mut().get_cursor().unwrap(), (11, 0));
+        Ok(())
+    }
 
+    #[rstest]
+    #[case::position_0(0, (11, 0))] // start of value
+    #[case::position_3(2, (13, 0))] // middle of value
+    #[case::position_4(4, (15, 0))] // last character of value
+    #[case::position_5(5, (16, 0))] // one character beyond the value
+    #[case::position_6(6, (0, 1))] // FIXME: should not go beyond the value
+    #[case::position_7(7, (1, 1))] // FIXME: should not go beyond the value
+    #[case::position_22(22, (16, 1))] // FIXME: should not go beyond the value
+    #[case::position_99(99, (16, 1))] // FIXME: should not go beyond the value
+    fn draw_unwrapped_position<'a>(
+        #[case] position: usize,
+        #[case] expected_cursor: (u16, u16),
+        mut terminal: Terminal<impl Backend>,
+    ) -> Result<()> {
+        let prompt = TextPrompt::from("prompt");
+        let mut state = TextState::new().with_value("hello");
+        // expected: "? prompt › hello "
+        //           "                 "
+        // position:             012345
+        // cursor:    01234567890123456
         // The cursor is changed when the prompt is focused and the position is changed.
-        *state.position_mut() = 3;
-        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
-        assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.cursor(), (14, 0));
-        assert_eq!(terminal.get_cursor()?, (14, 0));
-
-        // The cursor does not go beyond the end of the value.
-        *state.position_mut() = 100;
-        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
-        assert_buffer_eq!(*frame.buffer, expected);
-        // FIXME (I think these both should be 16, 0 probably)
-        assert_eq!(state.cursor(), (16, 1));
-        assert_eq!(terminal.get_cursor()?, (16, 1));
+        state.focus();
+        *state.position_mut() = position;
+        let _ = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
+        assert_eq!(state.cursor(), expected_cursor);
+        assert_eq!(terminal.get_cursor()?, expected_cursor);
 
         Ok(())
     }
 
-    #[test]
-    #[allow(clippy::cognitive_complexity)]
-    fn draw_wrapped() -> Result<(), Box<dyn std::error::Error>> {
+    #[rstest]
+    #[case::position_0(0, (11, 0))] // start of value
+    #[case::position_1(3, (14, 0))] // middle of value
+    #[case::position_5(5, (16, 0))] // end of line
+    #[case::position_6(6, (0, 1))] // first character of the second line
+    #[case::position_7(7, (1, 1))] // second character of the second line
+    #[case::position_11(10, (4, 1))] // last character of the value
+    #[case::position_12(12, (6, 1))] // one character beyond the value
+    #[case::position_13(13, (7, 1))] // FIXME: should not go beyond the value
+    #[case::position_22(22, (16, 1))] // FIXME: should not go beyond the value
+    #[case::position_99(99, (16, 1))] // FIXME: should not go beyond the value
+    fn draw_wrapped_position<'a>(
+        #[case] position: usize,
+        #[case] expected_cursor: (u16, u16),
+        mut terminal: Terminal<impl Backend>,
+    ) -> Result<()> {
         let prompt = TextPrompt::from("prompt");
         let mut state = TextState::new().with_value("hello world");
-        let backend = TestBackend::new(17, 2);
-        let mut terminal = Terminal::new(backend)?;
-
-        let mut expected = Buffer::with_lines(vec!["? prompt › hello ", "world            "]);
-        expected.set_style(Rect::new(0, 0, 1, 1), PENDING_STYLE);
-        expected.set_style(Rect::new(2, 0, 6, 1), Style::new().bold());
-        expected.set_style(Rect::new(8, 0, 3, 1), Style::new().cyan().dim());
-
-        // The cursor is not changed when the prompt is not focused.
-        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
-        assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.cursor(), (11, 0));
-        assert_eq!(terminal.get_cursor()?, (0, 0));
-
-        // The cursor is changed when the prompt is focused.
-        state.focus();
-        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
-        assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.cursor(), (11, 0));
-        assert_eq!(terminal.get_cursor()?, (11, 0));
-
+        // line 1:   "? prompt › hello "
+        // position:             012345
+        // cursor:    01234567890123456
+        // line 2:   "world            "
+        // position:  678901
+        // cursor:    01234567890123456
         // The cursor is changed when the prompt is focused and the position is changed.
-        *state.position_mut() = 3;
-        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
-        assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.cursor(), (14, 0));
-        assert_eq!(terminal.get_cursor()?, (14, 0));
-
-        // The cursor wraps to the first column of the next line
-        *state.position_mut() = 6;
-        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
-        assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.cursor(), (0, 1));
-        assert_eq!(terminal.get_cursor()?, (0, 1));
-
-        // The cursor continues to cover the second line
-        *state.position_mut() = 7;
-        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
-        assert_buffer_eq!(*frame.buffer, expected);
-        assert_eq!(state.cursor(), (1, 1));
-        assert_eq!(terminal.get_cursor()?, (1, 1));
-
-        // The cursor does not go beyond the end of the value.
-        *state.position_mut() = 100;
-        let frame = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
-        assert_buffer_eq!(*frame.buffer, expected);
-        // FIXME (I think these both should be (5, 1) probably)
-        assert_eq!(state.cursor(), (16, 1));
-        assert_eq!(terminal.get_cursor()?, (16, 1));
+        state.focus();
+        *state.position_mut() = position;
+        let _ = terminal.draw(|frame| prompt.clone().draw(frame, frame.size(), &mut state))?;
+        assert_eq!(state.cursor(), expected_cursor);
+        assert_eq!(terminal.get_cursor()?, expected_cursor);
 
         Ok(())
     }
