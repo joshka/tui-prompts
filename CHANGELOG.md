@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.13](https://github.com/joshka/tui-prompts/compare/v0.3.12...v0.3.13) - 2024-06-25
+
+### Other
+- *(deps)* update ratatui, itertools, rstest, clap ([#51](https://github.com/joshka/tui-prompts/pull/51))
+- simplify text_prompt tests ([#49](https://github.com/joshka/tui-prompts/pull/49))
+
 ## [0.3.12](https://github.com/joshka/tui-prompts/compare/v0.3.11...v0.3.12) - 2024-05-11
 
 ### Fixed
