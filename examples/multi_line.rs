@@ -4,8 +4,14 @@ use std::{panic, thread::sleep, time::Duration};
 
 use clap::Parser;
 use color_eyre::Result;
-use crossterm::event::{self, Event, KeyEvent};
-use ratatui::{prelude::*, widgets::*};
+use ratatui::{
+    crossterm::{
+        self,
+        event::{self, Event, KeyEvent},
+    },
+    prelude::*,
+    widgets::*,
+};
 use tui::Tui;
 use tui_prompts::prelude::*;
 
