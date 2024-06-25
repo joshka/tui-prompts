@@ -4,8 +4,11 @@ use std::{thread::sleep, time::Duration};
 
 use clap::Parser;
 use color_eyre::Result;
-use crossterm::event::{self, Event, KeyEvent, KeyModifiers};
-use ratatui::{prelude::*, widgets::*};
+use ratatui::{
+    crossterm::event::{self, Event, KeyEvent, KeyModifiers},
+    prelude::*,
+    widgets::*,
+};
 use tui::Tui;
 use tui_prompts::prelude::*;
 
