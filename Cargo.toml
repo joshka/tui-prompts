@@ -13,17 +13,12 @@ edition = "2021"
 
 [dependencies]
 crossterm = "0.27.0"
-itertools = "0.12.1"
-ratatui = "0.26.2"
-ratatui-macros = { version = "0.3.0", path = "../ratatui-macros" }
-rstest = "0.19.0"
+itertools = "0.13.0"
+ratatui = "0.27.0"
+ratatui-macros = { version = "0.4.1" }
+rstest = "0.21.0"
 
 [dev-dependencies]
-clap = { version = "4.5.4", features = ["derive"] }
+clap = { version = "4.5.7", features = ["derive"] }
 color-eyre = "0.6.3"
 indoc = "2.0.5"
-
-[patch.crates-io]
-# take advantage of the latest unreleased ratatui features
-# ratatui = { git = "https://github.com/joshka/ratatui.git", branch = "main" }
-# ratatui = { path = "../ratatui" }

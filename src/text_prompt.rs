@@ -208,7 +208,7 @@ mod tests {
     use rstest::{fixture, rstest};
 
     use super::*;
-    use ratatui::{assert_buffer_eq, backend::TestBackend, widgets::Borders};
+    use ratatui::{backend::TestBackend, widgets::Borders};
 
     #[test]
     fn new() {
@@ -241,7 +241,7 @@ mod tests {
         prompt.render(buffer.area, &mut buffer, &mut state);
 
         let line = line!["?".cyan(), " ", "prompt".bold(), " › ".cyan().dim(), "    ",];
-        assert_buffer_eq!(buffer, Buffer::with_lines([line]));
+        assert_eq!(buffer, Buffer::with_lines([line]));
         assert_eq!(state.cursor(), (11, 0));
     }
 
@@ -254,7 +254,7 @@ mod tests {
         prompt.render(buffer.area, &mut buffer, &mut state);
 
         let line = line!["?".cyan(), " ", "🔍".bold(), " › ".cyan().dim(), "    "];
-        assert_buffer_eq!(buffer, Buffer::with_lines([line]));
+        assert_eq!(buffer, Buffer::with_lines([line]));
         assert_eq!(state.cursor(), (7, 0));
     }
 
@@ -273,7 +273,7 @@ mod tests {
             " › ".cyan().dim(),
             "    "
         ];
-        assert_buffer_eq!(buffer, Buffer::with_lines([line]));
+        assert_eq!(buffer, Buffer::with_lines([line]));
     }
 
     #[test]
@@ -285,7 +285,7 @@ mod tests {
         prompt.render(buffer.area, &mut buffer, &mut state);
 
         let line = line!["✘".red(), " ", "prompt".bold(), " › ".cyan().dim(), "    "];
-        assert_buffer_eq!(buffer, Buffer::with_lines([line]));
+        assert_eq!(buffer, Buffer::with_lines([line]));
     }
 
     #[test]
@@ -303,7 +303,7 @@ mod tests {
             " › ".cyan().dim(),
             "value              ".to_string()
         ];
-        assert_buffer_eq!(buffer, Buffer::with_lines([line]));
+        assert_eq!(buffer, Buffer::with_lines([line]));
     }
 
     #[test]
@@ -323,7 +323,7 @@ mod tests {
         expected.set_style(Rect::new(1, 1, 1, 1), Color::Cyan);
         expected.set_style(Rect::new(3, 1, 6, 1), Modifier::BOLD);
         expected.set_style(Rect::new(9, 1, 3, 1), (Color::Cyan, Modifier::DIM));
-        assert_buffer_eq!(buffer, expected);
+        assert_eq!(buffer, expected);
     }
 
     #[test]
@@ -341,7 +341,7 @@ mod tests {
             " › ".cyan().dim(),
             "*****              ".to_string()
         ];
-        assert_buffer_eq!(buffer, Buffer::with_lines([line]));
+        assert_eq!(buffer, Buffer::with_lines([line]));
     }
 
     #[test]
@@ -359,7 +359,7 @@ mod tests {
             " › ".cyan().dim(),
             "                   ".to_string()
         ];
-        assert_buffer_eq!(buffer, Buffer::with_lines([line]));
+        assert_eq!(buffer, Buffer::with_lines([line]));
     }
 
     #[fixture]
