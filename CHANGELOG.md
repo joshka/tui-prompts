@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.15](https://github.com/joshka/tui-prompts/compare/v0.3.14...v0.3.15) - 2024-07-08
+
+### Fixed
+- delete and backspace behavior for multi-byte characters ([#57](https://github.com/joshka/tui-prompts/pull/57))
+
 ## [0.3.14](https://github.com/joshka/tui-prompts/compare/v0.3.13...v0.3.14) - 2024-07-02
 
 ### Other
