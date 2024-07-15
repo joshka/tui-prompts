@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.16](https://github.com/joshka/tui-prompts/compare/v0.3.15...v0.3.16) - 2024-07-15
+
+### Other
+- *(deps)* bump clap from 4.5.8 to 4.5.9 ([#59](https://github.com/joshka/tui-prompts/pull/59))
+
 ## [0.3.15](https://github.com/joshka/tui-prompts/compare/v0.3.14...v0.3.15) - 2024-07-08
 
 ### Fixed
