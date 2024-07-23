@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.17](https://github.com/joshka/tui-prompts/compare/v0.3.16...v0.3.17) - 2024-07-23
+
+### Other
+- *(deps)* bump ratatui-macros from 0.4.2 to 0.4.3 ([#61](https://github.com/joshka/tui-prompts/pull/61))
+
 ## [0.3.16](https://github.com/joshka/tui-prompts/compare/v0.3.15...v0.3.16) - 2024-07-15
 
 ### Other
