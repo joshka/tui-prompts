@@ -1,3 +1,7 @@
+> [!IMPORTANT]
+> This repo has been consolidated into <https://github.com/tui-widgets>. All future work will happen
+> there. The crate will remain available as tui-big-text, but this repo is now archived.
+
 <h1><img src="https://user-images.githubusercontent.com/381361/252977280-49b9ff66-f78d-4e16-b5ed-29d771bfcab2.png"></h1>
 
 # tui-prompts
